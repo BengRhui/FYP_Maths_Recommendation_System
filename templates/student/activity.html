@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load humanize static asset_tags %}
+{% block title %}Recent activity — AdeptMath{% endblock %}
+{% block body_class %}is-home is-activity{% endblock %}
+{% block content %}
+<div class="container-mp page">
+  <div class="activity-header">
+    <h1>Recent Activity</h1>
+  </div>
+
+  {% if sessions or any_filter_active %}
+    <div class="activity-row activity-row-head">
+      <div class="activity-col">
+        When
+        <details class="activity-filter-menu{% if when_filter_active %} has-active-filter{% endif %}" name="activityFilters">
+          <summary aria-label="Filter by when">{% include "components/icon.html" with name="filter" cls="mp-icon-sm" %}</summary>
+          <div class="activity-filter-panel">
+            {% for opt in when_options %}
+              <a href="{{ opt.url }}" class="{% if opt.active %}active{% endif %}">{{ opt.label }}</a>
+            {% endfor %}
+          </div>
+        </details>
+      </div>
+      <div class="activity-col">
+        Skill
+        <details class="activity-filter-menu{% if domain_filter_active %} has-active-filter{% endif %}" name="activityFilters">
+          <summary aria-label="Filter by skill">{% include "components/icon.html" with name="filter" cls="mp-icon-sm" %}</summary>
+          <div class="activity-filter-panel">
+            {% for opt in domain_options %}
+              <a href="{{ opt.url }}" class="{% if opt.active %}active{% endif %}">{{ opt.label }}</a>
+            {% endfor %}
+          </div>
+        </details>
+      </div>
+      <div class="activity-col activity-col-score">
+        Score
+        <details class="activity-filter-menu{% if tier_filter_active %} has-active-filter{% endif %}" name="activityFilters">
+          <summary aria-label="Filter by score">{% include "components/icon.html" with name="filter" cls="mp-icon-sm" %}</summary>
+          <div class="activity-filter-panel">
+            {% for opt in tier_options %}
+              <a href="{{ opt.url }}" class="{% if opt.active %}active{% endif %}">{{ opt.label }}</a>
+            {% endfor %}
+          </div>
+        </details>
+      </div>
+      <div class="activity-col"></div>
+    </div>
+
+    {% if sessions %}
+      <div class="activity-rows-scroll" id="activityRows">
+        {% for item in sessions %}
+          {% with s=item.session %}
+            <div class="activity-row is-clickable"
+                 data-review-url="{% url 'learning:practice_results' s.id %}">
+              <div class="activity-when">
+                <span>{{ s.completed_at|date:"M d, Y"|upper }}</span>
+                <span>{{ s.completed_at|date:"g:i A" }}</span>
+              </div>
+              <div class="activity-info">
+                <div class="activity-title">{{ s.micro_skill.title }}</div>
+                <div class="activity-sub">Skill: {{ s.micro_skill.macro_domain.name }}</div>
+              </div>
+              <div class="activity-score">
+                <span class="activity-score-val activity-score-{{ item.tier }}">
+                  {{ s.score }}/{{ s.total_questions }} <span class="activity-score-word">correct</span>
+                </span>
+              </div>
+              <button type="button" class="btn btn-outline-primary btn-sm activity-review">
+                Review Attempt
+              </button>
+            </div>
+          {% endwith %}
+        {% endfor %}
+      </div>
+
+      {% if has_more %}
+        <div class="activity-load-more" id="activityLoadMore">
+          <a href="{{ load_more_url }}" id="activityLoadMoreLink" class="btn activity-load-btn">
+            Load previous activity {% include "components/icon.html" with name="chevron-right" cls="mp-icon-sm activity-load-chevron" %}
+          </a>
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="empty-state activity-empty">
+        <p>No sessions match this filter.</p>
+        <a href="{% url 'learning:activity' %}">Clear filters</a>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="empty-state activity-empty">
+      <h3>No activity yet</h3>
+      <p>Complete a practice set to begin building your activity history.</p>
+      <a href="{% url 'learning:dashboard' %}" class="btn btn-primary">Go to home</a>
+    </div>
+  {% endif %}
+</div>
+
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true" aria-labelledby="reviewModalTitle">
+  <div class="modal-dialog modal-dialog-centered modal-mp-dialog">
+    <div class="modal-content modal-mp-content">
+      <div class="modal-body reading" id="reviewModalBody">
+        <div class="text-center py-5"><div class="spinner-border" role="status" style="color:var(--on-tertiary-container);"></div></div>
+      </div>
+      <div class="modal-footer border-0 justify-content-center">
+        <button type="button" class="btn btn-mp-dark" data-bs-dismiss="modal">Close Results</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{% static 'vendor/katex/katex.min.css' %}">
+<script src="{% static 'vendor/katex/katex.min.js' %}"></script>
+<script src="{% static_v 'js/math-notation.js' %}"></script>
+<script src="{% static_v 'js/katex-text.js' %}"></script>
+<script src="{% static_v 'js/activity.js' %}"></script>
+{% endblock %}

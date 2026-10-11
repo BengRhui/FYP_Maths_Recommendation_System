@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Create an account — AdeptMath{% endblock %}
+{% block body_class %}is-auth{% endblock %}
+{% block content %}
+<div class="auth-shell" style="max-width:640px;">
+  <h1 class="h3 text-center mb-4">Create your AdeptMath account</h1>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="auth-card h-100 text-center auth-choice-card">
+        <h3>I am a student</h3>
+        <p class="text-muted-2">Learn at your own pace and build strong foundations.</p>
+        <a href="{% url 'accounts:register_student' %}" class="btn btn-primary w-100 mt-auto">Create student account</a>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="auth-card h-100 text-center auth-choice-card">
+        <h3>I am a teacher</h3>
+        <p class="text-muted-2">Create classes and follow your students' progress.</p>
+        <a href="{% url 'accounts:register_teacher' %}" class="btn btn-outline-primary w-100 mt-auto">Teacher registration</a>
+      </div>
+    </div>
+  </div>
+  <p class="mt-4 text-center text-muted-2">Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+</div>
+{% endblock %}

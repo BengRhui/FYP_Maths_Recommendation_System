@@ -1,0 +1,22 @@
+<div class="modal fade" id="createClassModal" tabindex="-1" aria-labelledby="createClassModalTitle" aria-hidden="true"
+     {% if create_form.errors %}data-autoopen{% endif %}>
+  <div class="modal-dialog modal-dialog-centered modal-mp-dialog modal-mp-dialog-sm">
+    <div class="modal-content modal-mp-content">
+      <form method="post" action="{% url 'classes:create_class' %}" novalidate>
+        {% csrf_token %}
+        <div class="modal-header border-0">
+          <h2 id="createClassModalTitle" class="mb-0">Create a class</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {% include "components/field.html" with field=create_form.name %}
+          <p class="helptext">You can enroll students from the class page once it's created.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create class</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

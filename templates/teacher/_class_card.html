@@ -1,0 +1,29 @@
+
+<div class="tclass-card">
+  <div class="tclass-card-id">
+    <h3><a class="tclass-card-link" href="{% url 'classes:class_detail' s.class.id %}">{{ s.class.name }}</a></h3>
+    <span class="tclass-card-enrolled">{{ s.student_count }} student{{ s.student_count|pluralize }} enrolled</span>
+  </div>
+
+  <div class="tclass-card-stat">
+    <span class="tclass-card-stat-cap">Active this week</span>
+    <span class="tclass-card-stat-val">{{ s.active_week }} of {{ s.student_count }}</span>
+  </div>
+
+  <div class="tclass-card-stat">
+    <span class="tclass-card-stat-cap">Performance</span>
+    <span class="tclass-card-stat-val">{{ s.avg_mastery }}% mastery</span>
+  </div>
+
+  <span class="tclass-card-flag-slot">{% if s.support_count %}<span class="chip chip-in_progress tclass-card-flag">{% include "components/icon.html" with name="alert" cls="mp-icon-sm" %}{{ s.support_count }} student{{ s.support_count|pluralize }}
+      need{{ s.support_count|pluralize:"s," }} support</span>{% endif %}</span>
+
+   <span class="tclass-side">
+     <a href="{% url 'classes:class_detail' s.class.id %}" class="btn btn-outline-primary">View class</a>
+     <form method="post" action="{% url 'classes:delete_class' s.class.id %}"
+           data-confirm="{{ s.class.name }} will be deleted. This action cannot be undone.">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-ghost tclass-delete" title="Delete class">{% include "components/icon.html" with name="trash" cls="mp-icon-sm" %}<span class="visually-hidden">Delete {{ s.class.name }}</span></button>
+    </form>
+  </span>
+</div>

@@ -1,0 +1,12 @@
+{% load static %}
+<nav class="mp-nav">
+  <div class="container-mp d-flex align-items-center justify-content-between" style="height:72px;">
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'landing' %}">
+      <span class="mp-logo">{% include "components/icon.html" with name="path" %}</span> AdeptMath
+    </a>
+    <div class="d-flex align-items-center gap-3">
+      <a class="btn btn-ghost" href="{% url 'accounts:login' %}">Log in</a>
+      <a class="btn btn-primary" href="{% url 'accounts:register_choice' %}">Sign Up</a>
+    </div>
+  </div>
+</nav>

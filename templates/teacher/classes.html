@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}My classes — AdeptMath{% endblock %}
+{% block body_class %}is-home is-classes{% endblock %}
+{% block content %}
+<div class="container-mp page">
+  <div class="tclass-head d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+    <div>
+      <h1>Your classes</h1>
+      <p class="text-muted-2 mb-0">Every class you teach, and where you add new ones.</p>
+    </div>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClassModal">
+      + Add new class
+    </button>
+  </div>
+
+  <div class="tclass-scroll-wrap">
+    <div class="tclass-fade tclass-fade-top" aria-hidden="true"></div>
+    <div class="tclass-scroll">
+      <div class="tclass-list">
+        {% for s in summaries %}
+          {% include "teacher/_class_card.html" %}
+        {% empty %}
+          <p class="text-muted-2 mb-0">No classes yet — add your first one below and enroll your students.</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="tclass-fade tclass-fade-bottom" aria-hidden="true"></div>
+  </div>
+</div>
+
+{% include "teacher/_create_class_modal.html" %}
+{% endblock %}

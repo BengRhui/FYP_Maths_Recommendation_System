@@ -1,0 +1,19 @@
+{% if row.state == 'locked' %}
+  <div class="path-node state-locked" style="left:{{ row.left }}px; top:{{ row.top }}px"
+       data-skill="{{ row.skill.slug }}"
+       title="Locked — master {% for p in row.unmet %}{{ p.title }}{% if not forloop.last %} and {% endif %}{% endfor %} first.">
+    <span class="path-node-mark">{% include "components/icon.html" with name="lock" cls="mp-icon-sm" %}</span>
+    <span class="path-node-title">{{ row.skill.title }}</span>
+  </div>
+{% else %}
+  <a class="path-node state-{{ row.state }}" style="left:{{ row.left }}px; top:{{ row.top }}px"
+     data-skill="{{ row.skill.slug }}"
+     href="{% url 'learning:skill_detail' row.skill.slug %}">
+    <span class="path-node-mark">
+      {% if row.state == 'mastered' %}{% include "components/icon.html" with name="check" cls="mp-icon-sm" %}
+      {% else %}{% include "components/icon.html" with name="play" cls="mp-icon-sm" %}{% endif %}
+    </span>
+    <span class="path-node-title">{{ row.skill.title }}</span>
+    {% if row.state == 'in_progress' %}<span class="path-node-pip" aria-hidden="true"></span>{% endif %}
+  </a>
+{% endif %}

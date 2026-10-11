@@ -1,0 +1,48 @@
+
+{% with pct=mastery.mastery_percent|default:0 %}
+<div class="skillpop {% if not mastery.attempts %}tier-none{% elif pct >= 80 %}tier-mastered{% else %}tier-progress{% endif %}">
+
+  <div class="skillpop-rail">
+    <p class="skillpop-form">{{ skill.get_form_level_display }}</p>
+
+    <div class="skillpop-gauge">
+      <div class="skillpop-track" role="img"
+           aria-label="{% if mastery.attempts %}{{ pct }} percent mastery{% else %}Not started{% endif %}">
+        <div class="skillpop-fill" style="--pct:{{ pct }}"></div>
+      </div>
+      <div class="skillpop-figure">
+        {% if mastery.attempts %}
+          <span class="skillpop-pct">{{ pct }}<span class="skillpop-pct-sign">%</span></span>
+        {% else %}
+          <span class="skillpop-pct skillpop-pct-empty">&mdash;<span class="skillpop-pct-sign">%</span></span>
+        {% endif %}
+        <span class="skillpop-figure-label">Mastery</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skillpop-panel">
+    <h2 class="skillpop-title" id="skillModalTitle">{{ skill.title }}</h2>
+
+    {% if state == 'locked' %}
+      <p class="skillpop-locked">
+        Builds on
+        {% for p in unmet %}<strong>{{ p.title }}</strong>{% if not forloop.last %}, {% endif %}{% endfor %}.
+        Master {% if unmet|length > 1 %}those first{% else %}that first{% endif %}.
+      </p>
+    {% else %}
+      <div class="skillpop-actions">
+        <a href="{% url 'learning:practice_start' skill.slug %}" class="skillpop-action is-primary">
+          {% include "components/icon.html" with name="play" cls="mp-icon-sm" %}
+          <span>Practise</span>
+        </a>
+        <a href="{% url 'learning:learn_notes' skill.slug %}" class="skillpop-action">
+          {% include "components/icon.html" with name="document" cls="mp-icon-sm" %}
+          <span>Notes</span>
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endwith %}

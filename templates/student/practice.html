@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static asset_tags %}
+{% block title %}Practice — AdeptMath{% endblock %}
+{% block body_class %}is-assess{% endblock %}
+{% block nav %}
+<div class="assess-bar">
+  <div class="container-mp assess-bar-inner">
+    <span class="assess-count">Question {{ question_number }} of {{ session.total_questions }}</span>
+  </div>
+  <div class="assess-progress"><span style="width:{{ progress_percent }}%"></span></div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-mp page">
+  <div class="reading">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <span class="topic-label">Practice · {{ session.micro_skill.title }}</span>
+    </div>
+
+    <div class="question-surface">
+      <p class="question-text math" data-katex-text>{{ question.stem|safe }}</p>
+
+      <form method="post" action="{% url 'learning:practice_answer' session.id %}" data-answer-form class="mt-4">
+        {% csrf_token %}
+        <input type="hidden" name="response_time_sec" value="">
+        {% include "components/answer_inputs.html" %}
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
+          <button type="button" class="btn btn-ghost btn-exit" data-bs-toggle="modal" data-bs-target="#exitModal">
+            {% include "components/icon.html" with name="logout" cls="mp-icon-sm" %} Exit
+          </button>
+          <button type="submit" class="btn btn-primary btn-lg" data-continue disabled>Continue</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal fade" id="exitModal" tabindex="-1" aria-labelledby="exitModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content exit-modal">
+      <div class="modal-body">
+        <h3 id="exitModalTitle" class="mb-2">Leave this practice set?</h3>
+        <p class="text-muted-2 mb-3">
+          You are on question {{ question_number }} of {{ session.total_questions }}.
+          <strong>This question will not be recorded</strong>, but your previous
+          attempt{{ answered_count|pluralize }} on this question set will be saved.
+        </p>
+        <div class="d-flex flex-wrap justify-content-end gap-2">
+          <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Keep practising</button>
+          <form method="post" action="{% url 'learning:practice_exit' session.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-primary">Yes, exit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{% static 'vendor/katex/katex.min.css' %}">
+<script src="{% static 'vendor/katex/katex.min.js' %}"></script>
+<script src="{% static_v 'js/math-notation.js' %}"></script>
+<script src="{% static_v 'js/math-input.js' %}"></script>
+<script src="{% static_v 'js/katex-text.js' %}"></script>
+{% endblock %}

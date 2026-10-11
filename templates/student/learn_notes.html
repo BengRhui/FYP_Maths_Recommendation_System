@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static asset_tags notes_markup %}
+{% block title %}Learn: {{ skill.title }} — AdeptMath{% endblock %}
+{% block body_class %}is-home is-notes{% endblock %}
+{% block content %}
+<div class="container-mp page">
+  <div class="notes-header">
+    <span class="eyebrow">{{ skill.get_form_level_display }} · {{ skill.macro_domain.name }}</span>
+    <h1 class="mt-2">{{ skill.title }}</h1>
+  </div>
+
+  <div class="notes-scroll">
+    <div class="reading notes-reading">
+      {% if note %}
+        <div class="notes-copy">{{ note.explanation|notes_markup }}</div>
+
+        {% if note.key_idea %}
+          <div class="key-idea">
+            <span class="eyebrow">Key idea</span>
+            <div class="key-idea-copy">{{ note.key_idea|notes_markup }}</div>
+          </div>
+        {% endif %}
+      {% else %}
+        <p class="text-muted-2">Notes for this skill are coming soon.</p>
+      {% endif %}
+
+      {% if examples %}
+        <h3 class="examples-heading">Worked examples</h3>
+        {% for ex in examples %}
+          <div class="example-card">
+            <button type="button" class="example-head" data-example-toggle
+                    aria-expanded="false" aria-controls="ex-body-{{ forloop.counter }}">
+              <span>Example {{ ex.order }}</span>
+              {% include "components/icon.html" with name="chevron-down" cls="mp-icon-sm review-chevron" %}
+            </button>
+            <div class="example-body" id="ex-body-{{ forloop.counter }}" hidden>
+              <p class="math mb-3" data-katex-text>{{ ex.problem }}</p>
+              <button type="button" class="btn btn-outline-primary btn-sm" data-solution-toggle
+                      aria-expanded="false" aria-controls="ex-sol-{{ forloop.counter }}"
+                      data-show-label="Show Solution" data-hide-label="Hide Solution">Show Solution</button>
+              <div class="example-solution" id="ex-sol-{{ forloop.counter }}" hidden>
+                <span class="example-solution-label">Step-by-step solution</span>
+                <ol class="example-steps">
+                  {% for step in ex.step_list %}<li><span data-katex-text>{{ step }}</span></li>{% endfor %}
+                </ol>
+                <p class="mb-0"><strong>Answer:</strong> <span class="final-answer" data-katex-value>{{ ex.final_answer }}</span></p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="notes-footer d-flex flex-wrap gap-4 align-items-center">
+    <a href="{% url 'learning:practice_start' skill.slug %}" class="btn btn-primary btn-lg">Try the quiz</a>
+    <a href="{% url 'learning:learning_path' %}" class="text-muted-2 small notes-back-link">Back to learning path</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{% static 'vendor/katex/katex.min.css' %}">
+<script src="{% static 'vendor/katex/katex.min.js' %}"></script>
+<script src="{% static_v 'js/math-notation.js' %}"></script>
+<script src="{% static_v 'js/katex-text.js' %}"></script>
+{% endblock %}

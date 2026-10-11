@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static asset_tags %}
+{% block title %}Starting point check — AdeptMath{% endblock %}
+{% block body_class %}is-assess{% endblock %}
+{% block nav %}
+<div class="assess-bar">
+  <div class="container-mp assess-bar-inner">
+    <span class="assess-count">Question {{ question_number }} of {{ total }}</span>
+  </div>
+  <div class="assess-progress"><span style="width:{{ progress_percent }}%"></span></div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-mp page">
+  <div class="reading">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <span class="topic-label">Starting point check</span>
+    </div>
+
+    <div class="question-surface">
+      <p class="question-text math" data-katex-text>{{ question.stem|safe }}</p>
+      <form method="post" action="{% url 'learning:diagnostic_question' session.id %}" data-answer-form class="mt-4">
+        {% csrf_token %}
+        <input type="hidden" name="response_time_sec" value="">
+        {% include "components/answer_inputs.html" %}
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn btn-primary btn-lg" data-continue disabled>Continue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{% static 'vendor/katex/katex.min.css' %}">
+<script src="{% static 'vendor/katex/katex.min.js' %}"></script>
+<script src="{% static_v 'js/math-notation.js' %}"></script>
+<script src="{% static_v 'js/math-input.js' %}"></script>
+<script src="{% static_v 'js/katex-text.js' %}"></script>
+{% endblock %}

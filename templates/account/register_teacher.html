@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static asset_tags %}
+{% block title %}Create teacher account — AdeptMath{% endblock %}
+{% block body_class %}is-auth{% endblock %}
+{% block content %}
+<div class="auth-shell-wide">
+  <div class="auth-card-wide">
+    <div class="auth-header-row mb-4">
+      <h1 class="mb-0">Sign Up</h1>
+      <a href="{% url 'accounts:register_student' %}" class="portal-chip portal-chip-link mb-0">Teacher Portal</a>
+    </div>
+
+    {% if form.non_field_errors %}
+      <div class="toast-mp error mb-3">{{ form.non_field_errors|join:" " }}</div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="{{ form.full_name.id_for_label }}" class="form-label">Full Name</label>
+          {{ form.full_name }}
+          {% if form.full_name.errors %}<ul class="errorlist">{% for e in form.full_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+          {{ form.email }}
+          {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+          <div class="auth-input-wrap has-toggle">
+            {{ form.password1 }}
+            <button type="button" class="auth-toggle-visibility" data-toggle-password="{{ form.password1.id_for_label }}" aria-label="Show password">
+              <span class="icon-eye">{% include "components/icon.html" with name="eye" %}</span>
+              <span class="icon-eye-off">{% include "components/icon.html" with name="eye-off" %}</span>
+            </button>
+          </div>
+          {% if form.password1.errors %}<ul class="errorlist">{% for e in form.password1.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+          <div class="auth-input-wrap has-toggle">
+            {{ form.password2 }}
+            <button type="button" class="auth-toggle-visibility" data-toggle-password="{{ form.password2.id_for_label }}" aria-label="Show password">
+              <span class="icon-eye">{% include "components/icon.html" with name="eye" %}</span>
+              <span class="icon-eye-off">{% include "components/icon.html" with name="eye-off" %}</span>
+            </button>
+          </div>
+          {% if form.password2.errors %}<ul class="errorlist">{% for e in form.password2.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+      </div>
+
+      <div class="req-box" data-password-requirements="{{ form.password1.id_for_label }}">
+        <div class="req-title">Password Requirements:</div>
+        <div class="req-grid">
+          <div class="req-item" data-req="length"><span class="req-dot">{% include "components/icon.html" with name="check" cls="req-check" %}</span> 8+ characters</div>
+          <div class="req-item" data-req="letter"><span class="req-dot">{% include "components/icon.html" with name="check" cls="req-check" %}</span> At least one letter</div>
+          <div class="req-item" data-req="number"><span class="req-dot">{% include "components/icon.html" with name="check" cls="req-check" %}</span> At least one number</div>
+          <div class="req-item" data-req="special"><span class="req-dot">{% include "components/icon.html" with name="check" cls="req-check" %}</span> One special character</div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label for="{{ form.registration_code.id_for_label }}" class="form-label">Teacher Registration Code</label>
+          {{ form.registration_code }}
+        </div>
+        <div class="col-md-6 d-flex">
+          <div class="note-box mb-0 flex-fill">
+            <p class="note-text"><b>Note:</b> The code is mandatory to ensure that only verified teachers can register. Contact with your school or admin for more details.</p>
+          </div>
+        </div>
+        {% if form.registration_code.errors %}
+          <div class="col-12"><ul class="errorlist reg-code-error">{% for e in form.registration_code.errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg w-100 mt-1">
+        Register as Teacher {% include "components/icon.html" with name="arrow-right" cls="mp-icon-sm" %}
+      </button>
+    </form>
+    <p class="mt-3 mb-0 text-center text-muted-2">Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static_v 'js/auth.js' %}"></script>
+{% endblock %}

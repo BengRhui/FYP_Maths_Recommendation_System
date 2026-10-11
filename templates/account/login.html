@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static asset_tags %}
+{% block title %}Log in — AdeptMath{% endblock %}
+{% block body_class %}is-auth{% endblock %}
+{% block content %}
+<div class="auth-shell">
+  <div class="auth-card">
+    <h1 class="mb-1">Welcome back</h1>
+    <p class="text-muted-2 mb-4">Please enter your credentials to access your account.</p>
+
+    {% if form.non_field_errors %}
+      <div class="toast-mp error mb-3">{{ form.non_field_errors|join:" " }}</div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="{{ form.username.id_for_label }}" class="form-label">Email address</label>
+        <div class="auth-input-wrap has-left-icon">
+          <span class="auth-input-icon-mark">{% include "components/icon.html" with name="mail" %}</span>
+          {{ form.username }}
+        </div>
+        {% if form.username.errors %}<ul class="errorlist">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="mb-3 auth-password-field">
+        <label for="{{ form.password.id_for_label }}" class="form-label mb-0">Password</label>
+        <div class="auth-input-wrap has-left-icon has-toggle mt-1">
+          <span class="auth-input-icon-mark">{% include "components/icon.html" with name="lock" %}</span>
+          {{ form.password }}
+          <button type="button" class="auth-toggle-visibility" data-toggle-password="{{ form.password.id_for_label }}" aria-label="Show password">
+            <span class="icon-eye">{% include "components/icon.html" with name="eye" %}</span>
+            <span class="icon-eye-off">{% include "components/icon.html" with name="eye-off" %}</span>
+          </button>
+        </div>
+        {% if form.password.errors %}<ul class="errorlist">{% for e in form.password.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        <a href="{% url 'accounts:password_reset' %}" class="auth-forgot">Forgot Password?</a>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg w-100 mt-2">
+        Log In {% include "components/icon.html" with name="arrow-right" cls="mp-icon-sm" %}
+      </button>
+    </form>
+
+    <div class="auth-divider">
+      <span class="auth-divider-line"></span>
+      <span class="auth-divider-text">New to AdeptMath?</span>
+      <span class="auth-divider-line"></span>
+    </div>
+
+    <a href="{% url 'accounts:register_student' %}" class="auth-choice-row">
+      <span class="auth-choice-icon">{% include "components/icon.html" with name="graduation-cap" %}</span>
+      <span class="auth-choice-label">Sign up as a Student</span>
+      <span class="auth-choice-chevron">{% include "components/icon.html" with name="chevron-right" %}</span>
+    </a>
+    <a href="{% url 'accounts:register_teacher' %}" class="auth-choice-row">
+      <span class="auth-choice-icon">{% include "components/icon.html" with name="people" %}</span>
+      <span class="auth-choice-label">Sign up as a Teacher</span>
+      <span class="auth-choice-chevron">{% include "components/icon.html" with name="chevron-right" %}</span>
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static_v 'js/auth.js' %}"></script>
+{% endblock %}

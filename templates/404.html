@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Page not found — AdeptMath{% endblock %}
+{% block content %}
+<div class="container-mp page">
+  <div class="card-mp empty-state" style="max-width:560px; margin:40px auto;">
+    <h1 class="h3">We couldn't find that page</h1>
+    <p>The page may have moved, or the link may be out of date.</p>
+    <a href="{% url 'landing' %}" class="btn btn-primary">Return home</a>
+  </div>
+</div>
+{% endblock %}

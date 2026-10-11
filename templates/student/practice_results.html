@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static asset_tags %}
+{% block title %}Practice results — AdeptMath{% endblock %}
+{% block body_class %}is-home is-results{% endblock %}
+{% block content %}
+<div class="container-mp page">
+  <div class="results-page">
+
+    <header class="pr-head">
+      <section class="pr-panel level-{{ mastery_level_slug }}">
+        {% if session.micro_skill %}
+          <span class="eyebrow">{{ session.micro_skill.get_form_level_display }} · {{ session.micro_skill.macro_domain.name }}</span>
+          <h1 class="pr-title">{{ session.micro_skill.title }}</h1>
+        {% else %}
+          <h1 class="pr-title">Practice results</h1>
+        {% endif %}
+
+        <div class="pr-figures">
+          <p class="pr-figure"><strong>{{ session.score }}</strong> / {{ session.total_questions }} correct</p>
+          <span class="pr-figure-sep" aria-hidden="true"></span>
+          <p class="pr-figure">
+            <strong class="results-mastery-value"
+                    {% if mastery_before_percent is not None %}data-count-from="{{ mastery_before_percent }}" data-count-to="{{ mastery_percent }}"{% endif %}>{{ mastery_percent }}%</strong>
+            mastery
+          </p>
+          <span class="results-level level-{{ mastery_level_slug }}">{{ mastery_label }}</span>
+        </div>
+
+        <div class="results-meter"
+             {% if mastery_before_percent is not None %}data-meter-from="{{ mastery_before_percent }}"{% endif %}>
+          {% if mastery_delta %}
+            <i class="results-meter-mark" style="left:{{ mastery_before_percent }}%" aria-hidden="true"></i>
+          {% endif %}
+          <span class="level-{{ mastery_level_slug }}" style="width:{{ mastery_percent }}%"></span>
+        </div>
+
+        {% if mastery_delta %}
+          <p class="results-delta {% if mastery_delta > 0 %}is-up{% else %}is-down{% endif %}">
+            {% include "components/icon.html" with name="trend" cls="results-delta-icon" %}
+            <span>{% if mastery_delta > 0 %}Up{% else %}Down{% endif %} from {{ mastery_before_percent }}% when you started this set</span>
+          </p>
+        {% endif %}
+      </section>
+
+      <h2 class="pr-review-title">Review questions</h2>
+    </header>
+
+    <section class="results-review">
+    {% for item in review %}
+      <article class="rq-card">
+        <button class="rq-head" type="button" data-review-toggle
+                aria-expanded="false" aria-controls="rq-{{ forloop.counter }}">
+          <span class="rq-head-text">
+            <span class="rq-index">Q{{ forloop.counter }}</span>
+            <span class="rq-preview" data-katex-text>{{ item.question.preview }}</span>
+            {% comment %}The open card shows the full problem below, so the row names the question instead of repeating a truncated copy of it.{% endcomment %}
+            <span class="rq-open-title" aria-hidden="true">Question {{ forloop.counter }}</span>
+          </span>
+          {% if item.attempt.is_correct %}
+            <span class="rq-chip rq-chip-correct">
+              {% include "components/icon.html" with name="check-circle" cls="mp-icon-sm" %} Correct
+            </span>
+          {% else %}
+            <span class="rq-chip rq-chip-review">
+              {% include "components/icon.html" with name="x-circle" cls="mp-icon-sm" %} Incorrect
+            </span>
+          {% endif %}
+          {% include "components/icon.html" with name="chevron-down" cls="mp-icon-sm rq-chevron" %}
+        </button>
+
+        <div class="rq-body" id="rq-{{ forloop.counter }}" hidden>
+          <span class="rq-label">Problem</span>
+          <p class="rq-problem math" data-katex-text>{{ item.question.stem|safe }}</p>
+          {% if item.attempt.is_correct %}
+            <p class="rq-answered">
+              <span class="rq-label">Your answer</span>
+              <span class="rq-value rq-value-correct" data-katex-value>{{ item.attempt.submitted_answer_display|default:"—" }}</span>
+            </p>
+          {% else %}
+            <div class="rq-grid">
+              <div class="rq-box rq-box-wrong">
+                <span class="rq-label">Your answer</span>
+                <span class="rq-value rq-value-wrong" data-katex-value>{{ item.attempt.submitted_answer_display|default:"—" }}</span>
+              </div>
+              <div class="rq-box rq-box-correct">
+                <span class="rq-label">Correct answer</span>
+                <span class="rq-value rq-value-correct" data-katex-value>{{ item.correct_answer }}</span>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if item.question.worked_solution %}
+            <div class="rq-steps">
+              <span class="rq-label">Step-by-step solution</span>
+              <ol class="rq-steps-list">{% for step in item.question.solution_step_list %}<li><span data-katex-text>{{ step }}</span></li>{% endfor %}</ol>
+            </div>
+          {% endif %}
+        </div>
+      </article>
+    {% endfor %}
+    </section>
+
+    <footer class="pr-foot">
+      <div class="pr-actions">
+        {% if session.micro_skill %}
+          <a href="{% url 'learning:practice_start' session.micro_skill.slug %}" class="btn btn-primary">
+            {% include "components/icon.html" with name="refresh" cls="mp-icon-sm" %} Practise again
+          </a>
+          <a href="{% url 'learning:learn_notes' session.micro_skill.slug %}" class="btn btn-outline-primary">
+            {% include "components/icon.html" with name="book" cls="mp-icon-sm" %} Review notes
+          </a>
+        {% endif %}
+        <a href="{% url 'learning:learning_path' %}" class="btn btn-subtle">Back to learning path</a>
+      </div>
+    </footer>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{% static 'vendor/katex/katex.min.css' %}">
+<script src="{% static 'vendor/katex/katex.min.js' %}"></script>
+<script src="{% static_v 'js/math-notation.js' %}"></script>
+<script src="{% static_v 'js/katex-text.js' %}"></script>
+<script src="{% static_v 'js/practice-results.js' %}"></script>
+{% endblock %}

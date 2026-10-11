@@ -1,0 +1,17 @@
+{% if question.uses_choices %}
+  <fieldset>
+    <legend class="visually-hidden">Choose one answer</legend>
+    {% for choice in answer_choices %}
+      <label class="answer-row math" tabindex="0" data-katex-text>
+        <input type="radio" name="answer" value="{{ choice.pk }}" class="visually-hidden">
+        {{ choice.text }}
+      </label>
+    {% endfor %}
+  </fieldset>
+{% else %}
+  {% comment %}
+  No placeholder: a worked example of the answer's own shape gives away more of
+  the answer than it helps with, so the field is left empty.
+  {% endcomment %}
+  {% include "components/math_answer.html" with label="Enter your answer:" placeholder="" %}
+{% endif %}

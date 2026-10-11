@@ -1,0 +1,7 @@
+<div class="tattn-row">
+  <span class="tattn-name">
+    {{ a.student.full_name }}
+    {% if a.class_name and not hide_class %}<small>{{ a.class_name }}</small>{% endif %}
+  </span>
+  <span class="chip chip-in_progress">{{ a.overall }}%</span>
+</div>

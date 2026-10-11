@@ -1,0 +1,10 @@
+<div>
+  <div class="tskill-head">
+    <span class="tskill-name">{{ w.skill.title }}</span>
+    <span class="tskill-val tier-{{ w.tier }}">{{ w.avg }}% mastery</span>
+  </div>
+  <div class="tbar tier-{{ w.tier }}"><span style="width:{{ w.avg }}%"></span></div>
+  {% if show_students %}
+    <p class="tskill-sub">{{ w.students }} student{{ w.students|pluralize }} tracked</p>
+  {% endif %}
+</div>

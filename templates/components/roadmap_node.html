@@ -1,0 +1,31 @@
+
+{% if preview %}
+  <div class="path-node roadmap-node is-{{ row.state }}"
+       style="left:{{ row.left }}px; top:{{ row.top }}px"
+       data-skill="{{ row.skill.slug }}"
+       title="{{ row.skill.title }} — {{ row.skill.macro_domain.name }}">
+    <span class="path-node-mark">
+      {% if row.state == 'unreachable' %}{% include "components/icon.html" with name="alert" cls="mp-icon-sm" %}
+      {% else %}{% include "components/icon.html" with name="check" cls="mp-icon-sm" %}{% endif %}
+    </span>
+    <span class="path-node-title">{{ row.skill.title }}</span>
+  </div>
+{% else %}
+  <button type="button" class="path-node roadmap-node is-{{ row.state }}"
+          style="left:{{ row.left }}px; top:{{ row.top }}px"
+          data-skill="{{ row.skill.slug }}"
+          data-skill-id="{{ row.skill.id }}"
+          aria-pressed="{% if row.included %}true{% else %}false{% endif %}"
+          title="{{ row.skill.macro_domain.name }}">
+    <span class="path-node-mark">
+      {% include "components/icon.html" with name="check" cls="mp-icon-sm" %}
+      {% include "components/icon.html" with name="alert" cls="mp-icon-sm" %}
+    </span>
+    <span class="path-node-title">{{ row.skill.title }}</span>
+    <span class="visually-hidden" data-roadmap-state>
+      {% if row.state == 'included' %}Included in the roadmap
+      {% elif row.state == 'unreachable' %}Included, but unreachable — a prerequisite is excluded
+      {% else %}Excluded from the roadmap{% endif %}
+    </span>
+  </button>
+{% endif %}

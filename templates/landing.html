@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}AdeptMath — Learn maths at the right level for you{% endblock %}
+{% block body_class %}is-landing{% endblock %}
+
+{% block content %}
+<div class="landing-shell">
+  <section class="hero hero-landing">
+    <div class="hero-bg" aria-hidden="true">
+      <img src="{% static 'img/mobius.gif' %}" alt="" class="hero-bg-img">
+    </div>
+    <div class="container-mp w-100">
+      <div class="hero-copy">
+        <h1><span class="hero-beat">Practice smarter.</span> <span class="hero-beat accent">Not harder.</span></h1>
+        <p class="lead-split"><span class="lead-split-hook">Built for Malaysian students.</span><span class="lead-split-sub">Every question is picked for your exact proficiency level — not a guess.</span></p>
+        <div class="d-flex flex-wrap justify-content-center gap-2 mt-4 hero-cta">
+          <a class="btn btn-primary btn-lg" href="{% url 'accounts:register_student' %}">Your Journey Begins Here
+            {% include "components/icon.html" with name="arrow-right" cls="mp-icon-sm" %}
+          </a>
+          <a class="btn btn-outline-primary btn-translucent btn-lg" href="{% url 'accounts:register_teacher' %}">Teacher's Registration</a>
+        </div>
+        <div class="flow-gap" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block footer %}
+<footer class="mp-footer mp-footer-landing">
+  <div class="container-mp">
+    <span>© 2026 AdeptMath</span>
+  </div>
+</footer>
+{% endblock %}

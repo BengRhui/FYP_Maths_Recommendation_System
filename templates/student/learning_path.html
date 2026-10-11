@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static asset_tags %}
+{% block title %}Learning path — AdeptMath{% endblock %}
+{% block body_class %}is-path{% endblock %}
+{% block content %}
+<div class="container-mp page path-page">
+  <div class="path-head">
+    <div>
+      <h1>My Learning Path</h1>
+    </div>
+    <div class="path-modes" role="group" aria-label="How much of the path to show">
+      <a class="path-mode {% if not full %}active{% endif %}" href="?">Concise</a>
+      <a class="path-mode {% if full %}active{% endif %}" href="?view=full">Full</a>
+    </div>
+  </div>
+
+  <div class="path-body">
+    <div class="path-rail" style="height:{{ graph.height }}px">
+      {% for band in graph.bands %}
+        <div class="path-form-section" style="height:{{ band.height }}px">
+          <span class="path-form-mark" style="padding-top:{{ band.offset }}px">
+            <span class="path-form-dot" aria-hidden="true"></span>
+            <span class="path-form-label">{{ band.label }}</span>
+          </span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="path-scroll" style="height:{{ graph.height }}px">
+      <div class="path-canvas" style="width:{{ graph.width }}px; height:{{ graph.height }}px">
+        <svg class="path-edges" viewBox="0 0 {{ graph.width }} {{ graph.height }}"
+             width="{{ graph.width }}" height="{{ graph.height }}" aria-hidden="true">
+          {% for edge in graph.edges %}
+            <g class="path-link{% if edge.locked %} is-locked{% endif %}" data-target="{{ edge.target }}">
+              <title>{{ edge.label }}</title>
+              <path class="path-link-hit" d="{{ edge.d }}"></path>
+              <path class="path-edge" d="{{ edge.d }}"></path>
+            </g>
+          {% endfor %}
+        </svg>
+        {% for node in graph.nodes %}
+          {% include "components/path_node.html" with row=node %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="path-legend">
+    <span class="path-legend-item"><span class="path-legend-dot is-mastered"></span> Mastered</span>
+    <span class="path-legend-item"><span class="path-legend-dot is-progress"></span> In progress</span>
+    <span class="path-legend-item"><span class="path-legend-dot is-locked"></span> Locked</span>
+  </div>
+</div>
+
+<div class="modal fade" id="skillModal" tabindex="-1" aria-hidden="true" aria-labelledby="skillModalTitle">
+  <div class="modal-dialog modal-dialog-centered modal-mp-dialog">
+    <div class="modal-content modal-mp-content">
+      <button type="button" class="btn-close skillpop-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-body" id="skillModalBody">
+        <div class="text-center py-5"><div class="spinner-border" role="status" style="color:var(--on-tertiary-container);"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static_v 'js/learning_path.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Home — AdeptMath{% endblock %}
+{% block body_class %}is-home{% endblock %}
+{% block content %}
+<div class="container-mp page">
+
+  <section class="hero-mp">
+    <div class="hero-greeting">
+      <h1>Good day, {{ user.display_name }}.</h1>
+      <p>Welcome back — keep the momentum going, one step at a time.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat hero-stat-primary">
+        <span class="hero-stat-num">{{ overall_mastery }}%</span>
+        <span class="hero-stat-label">Overall mastery</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">{{ hours_week_display }}</span>
+        <span class="hero-stat-label">This week</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">{{ hours_all_display }}</span>
+        <span class="hero-stat-label">All time</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="home-grid">
+    <div class="home-col-main">
+
+      <div class="card-mp">
+        {% if rec_skill %}
+          <span class="eyebrow">{% include "components/icon.html" with name="star" cls="mp-icon-sm" %} Recommended next action</span>
+          <h2 class="mt-2 mb-1">{{ rec_skill.title }}</h2>
+          <div class="mb-3">
+            {% if rec_mastery and rec_mastery.attempts %}
+              <span class="chip chip-in_progress">Continue practising</span>
+            {% else %}
+              <span class="chip chip-available">Ready to practise</span>
+            {% endif %}
+          </div>
+          <p class="text-muted-2">
+            {% if rec_mastery and rec_mastery.attempts %}
+              You have made a good start here. A short practice set will help you progress.
+            {% else %}
+              You have built a good foundation. A short practice set will help you move forward.
+            {% endif %}
+          </p>
+          <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+            <a href="{% url 'learning:practice_start' rec_skill.slug %}" class="btn btn-primary btn-lg">
+              Start 5-question practice
+            </a>
+            <a href="{% url 'learning:learn_notes' rec_skill.slug %}" class="text-decoration-none">Review notes first</a>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="emoji">🎉</div>
+            <h3>You are all caught up</h3>
+            <p>You have mastered every unlocked skill. Explore your learning path for what's next.</p>
+            <a href="{% url 'learning:learning_path' %}" class="btn btn-primary">View learning path</a>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="home-subgrid">
+        <div class="card-mp card-flex">
+          <span class="eyebrow">Your classes</span>
+          {% for m in memberships|slice:":2" %}
+            <div class="classes-panel-item">
+              <strong>{{ m.school_class.name }}</strong>
+              <div class="classes-sub">Teacher: {{ m.school_class.teacher.full_name }}</div>
+            </div>
+          {% empty %}
+            <p class="text-muted-2 mb-0">You haven't joined a class yet.</p>
+          {% endfor %}
+          <a href="{% url 'accounts:profile' %}" class="card-foot-link">
+            {% if memberships|length > 2 %}
+              View all {{ memberships|length }} classes →
+            {% elif memberships %}
+              View your class{{ memberships|length|pluralize:"es" }} →
+            {% else %}
+              Join a class →
+            {% endif %}
+          </a>
+        </div>
+
+        <div class="card-mp card-flex">
+          <span class="eyebrow">Review notes</span>
+          {% for item in review_lessons %}
+            <div class="reviewnote-row">
+              <div>
+                <div class="reviewnote-title">{{ item.skill.title }}</div>
+                <div class="reviewnote-sub">{{ item.skill.macro_domain.name }}</div>
+              </div>
+              <a href="{% url 'learning:learn_notes' item.skill.slug %}" class="reviewnote-link">View</a>
+            </div>
+          {% empty %}
+            <p class="text-muted-2 mb-0">Nothing else queued up right now — nice work.</p>
+          {% endfor %}
+          <a href="{% url 'learning:learning_path' %}" class="card-foot-link">View learning path →</a>
+        </div>
+      </div>
+    </div>
+
+    <aside class="home-col-side">
+      <div class="card-mp skillset-card">
+        <span class="eyebrow">Your main skillset</span>
+        <div class="skillset-rows">
+          {% for s in skillset %}
+            <div class="skillset-row {% if s.percent == 0 %}tier-none{% elif s.percent >= 80 %}tier-mastered{% else %}tier-progress{% endif %}">
+              <div class="skillset-head">
+                <span class="skillset-name">{{ s.skill.title }}</span>
+                <span class="skillset-pct">{{ s.percent }}%</span>
+              </div>
+              <div class="mastery"><span style="width:{{ s.percent }}%"></span></div>
+            </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="skillset-foot-btn" data-bs-toggle="modal" data-bs-target="#skillsetModal">
+          View all {% include "components/icon.html" with name="arrow-right" cls="mp-icon-sm" %}
+        </button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="modal fade" id="skillsetModal" tabindex="-1" aria-labelledby="skillsetModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content modal-mp-content">
+      <div class="modal-header border-0">
+        <div>
+          <h2 id="skillsetModalTitle" class="mb-1">Your skillset</h2>
+          <p class="text-muted-2 mb-0">{{ unlocked_count }} of {{ total_count }} skills unlocked, across {{ skillset_all|length }} domains.</p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="skillsetModalBody">
+        {% for d in skillset_all %}
+          <div class="skillset-modal-domain {% if d.percent == 0 %}tier-none{% elif d.percent >= 80 %}tier-mastered{% else %}tier-progress{% endif %}">
+            <button type="button" class="skillset-domain-head" data-skillset-toggle
+                    aria-expanded="false" aria-controls="skillsetDomain{{ forloop.counter }}">
+              <span class="skillset-domain-head-text">
+                <span class="skillset-modal-domain-name">{{ d.domain.name }}</span>
+                <span class="text-muted-2 small">{{ d.skills }} skill{{ d.skills|pluralize }}</span>
+              </span>
+              <span class="skillset-pct">{{ d.percent }}%</span>
+              {% include "components/icon.html" with name="chevron-down" cls="mp-icon-sm skillset-domain-chevron" %}
+            </button>
+
+            <div class="skillset-domain-body" id="skillsetDomain{{ forloop.counter }}" hidden>
+              <div class="skillset-domain-ring">
+                <div class="mastery-ring" style="--pct:{{ d.percent }}">
+                  <span class="mastery-ring-text"><strong>{{ d.percent }}%</strong><small>Mastery</small></span>
+                </div>
+              </div>
+              <div class="skillset-modal-skills">
+                {% for r in d.skill_rows %}
+                  <div class="skillset-modal-skill">
+                    <span class="skillset-modal-skill-name">{{ r.skill.title }}</span>
+                    {% if r.hidden %}
+                      <span class="chip chip-hidden">Unavailable</span>
+                    {% elif r.state == 'locked' %}
+                      <span class="chip chip-locked">Locked</span>
+                    {% elif r.mastery and r.mastery.attempts %}
+                      <span class="skillset-modal-skill-pct {% if r.mastery_percent >= 80 %}tier-mastered{% else %}tier-progress{% endif %}">{{ r.mastery_percent }}%</span>
+                    {% else %}
+                      <span class="text-muted-2 small">Not started</span>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

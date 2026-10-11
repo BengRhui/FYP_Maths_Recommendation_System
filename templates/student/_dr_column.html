@@ -1,0 +1,16 @@
+<div class="dr-col{% if is_next %} is-next{% endif %}" style="--i: {{ index }}">
+  <div class="dr-col-track" role="img"
+       aria-label="{{ c.skill.title }}: {% if c.measured %}{{ c.percent }} percent mastery{% if c.level_label %}, {{ c.level_label|lower }}{% endif %}{% else %}not started{% endif %}{% if is_next %}. Recommended starting point{% endif %}">
+    {% if is_next %}
+      <span class="dr-climb"></span>
+      <span class="dr-flag" style="bottom: {{ c.percent }}%">Start here</span>
+    {% endif %}
+    <span class="dr-col-fill{% if not c.measured %} is-empty{% endif %}" style="--pct: {{ c.percent }}%">
+      <strong class="dr-col-fill-level">{% if c.measured %}{{ c.percent }}%{% else %}&mdash;{% endif %}</strong>
+    </span>
+  </div>
+  <p class="dr-col-name">{{ c.skill.title }}</p>
+  <p class="dr-col-level{% if c.level_slug %} level-{{ c.level_slug }}{% endif %}">
+    {{ c.level_label|default:"Not started" }}
+  </p>
+</div>

@@ -1,0 +1,13 @@
+<a class="tclass-row" href="{% url 'classes:class_detail' s.class.id %}">
+  <div class="tclass-main">
+    <h3>{{ s.class.name }}</h3>
+    <div class="tclass-bar-head">
+      <span class="tclass-bar-cap">{{ s.student_count }} student{{ s.student_count|pluralize }}</span>
+      <span class="tclass-pct">{{ s.avg_mastery }}% mastery</span>
+    </div>
+    <div class="tbar"><span style="width:{{ s.avg_mastery }}%"></span></div>
+  </div>
+  <div class="tclass-side">
+    <span class="btn btn-outline-primary">View class</span>
+  </div>
+</a>

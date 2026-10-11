@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static asset_tags %}
+{% block title %}Your starting point — AdeptMath{% endblock %}
+{% block body_class %}is-home is-startpoint{% endblock %}
+{% block content %}
+<div class="container-mp page">
+  <div class="dr-page">
+
+    <header class="dr-head">
+      <h1 class="dr-title">Here's where you're starting.</h1>
+      <p class="dr-lede">What you already know, topic by topic — and the one place worth going next.</p>
+    </header>
+
+    <div class="dr-ridge">
+      {% for c in topics %}
+        {% if rec_skill and c.skill.id == rec_skill.id %}
+          {% include "student/_dr_column.html" with c=c index=forloop.counter0 is_next=True %}
+        {% else %}
+          {% include "student/_dr_column.html" with c=c index=forloop.counter0 is_next=False %}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="dr-next">
+      {% if rec_skill %}
+        <p class="dr-next-line">
+          Your path begins with <strong>{{ rec_skill.title }}</strong>.
+        </p>
+        <div class="dr-next-actions">
+          <a href="{% url 'learning:learn_notes' rec_skill.slug %}" class="dr-next-quiet">Read the notes first</a>
+          <a href="{% url 'learning:practice_start' rec_skill.slug %}" class="btn btn-primary btn-lg">
+            Start 5-question practice
+          </a>
+        </div>
+      {% else %}
+        <p class="dr-next-line">Your learning path is ready — open it to choose where to begin.</p>
+        <div class="dr-next-actions">
+          <a href="{% url 'learning:learning_path' %}" class="btn btn-primary btn-lg">View my learning path</a>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static_v 'js/diagnostic-results.js' %}"></script>
+{% endblock %}

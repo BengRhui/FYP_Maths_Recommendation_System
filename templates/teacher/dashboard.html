@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Teacher dashboard — AdeptMath{% endblock %}
+{% block body_class %}is-home{% endblock %}
+{% block content %}
+<div class="container-mp page">
+  <div class="mb-4">
+    <h1>Good day, {{ user.display_name }}.</h1>
+    <p class="text-muted-2 mb-0">Here is an overview of your classes.</p>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-tile stat-tile-lead">
+        <div class="stat-lead-main">
+          <span class="stat-cap">Active classes</span>
+          {% include "components/icon.html" with name="classes" %}
+        </div>
+        <span class="stat-num">{{ class_count }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-tile stat-tile-lead">
+        <div class="stat-lead-main">
+          <span class="stat-cap">Joined students</span>
+          {% include "components/icon.html" with name="people" %}
+        </div>
+        <span class="stat-num">{{ student_count }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-tile stat-tile-lead">
+        <div class="stat-lead-main">
+          <span class="stat-cap">Active this week</span>
+          {% include "components/icon.html" with name="progress" %}
+        </div>
+        <span class="stat-num">{{ active_week }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-tile stat-tile-lead">
+        <div class="stat-lead-main">
+          <span class="stat-cap">Skills needing support</span>
+          {% include "components/icon.html" with name="alert" %}
+        </div>
+        <span class="stat-num">{{ support_count }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tdash-grid">
+    <section class="card-mp tdash-panel">
+      <h2 class="panel-cap">Your classes</h2>
+      <div class="tclass-list">
+        {% for s in summaries|slice:class_slice %}
+          {% include "teacher/_class_row.html" %}
+        {% empty %}
+          <p class="text-muted-2 mb-0">No classes yet — add your first one from My Classes.</p>
+        {% endfor %}
+      </div>
+      <a class="panel-link" href="{% url 'classes:teacher_classes' %}">
+        View all classes {% include "components/icon.html" with name="arrow-right" %}
+      </a>
+    </section>
+
+    <div class="tdash-side">
+      <section class="card-mp tdash-card">
+        <h2 class="panel-cap">Priority skills</h2>
+        <div class="tskill-list">
+          {% for w in weakest_skills|slice:dashboard_slice %}
+            {% include "teacher/_skill_row.html" %}
+          {% empty %}
+            <p class="text-muted-2 mb-0">No data yet — students need to complete some practice first.</p>
+          {% endfor %}
+        </div>
+        <button type="button" class="panel-link" data-bs-toggle="modal" data-bs-target="#allSkillsModal">
+          View all {% include "components/icon.html" with name="arrow-right" %}
+        </button>
+      </section>
+
+      <section class="card-mp tdash-card tdash-side-last">
+        <h2 class="panel-cap">Students needing attention</h2>
+        <div class="tattn-list">
+          {% for a in attention_preview %}
+            {% if a %}
+              {% include "teacher/_attention_row.html" %}
+            {% else %}
+              <div class="tattn-row tattn-row-empty" aria-hidden="true">
+                <span class="tattn-name">&nbsp;</span>
+                <span class="chip">&nbsp;</span>
+              </div>
+            {% endif %}
+          {% empty %}
+            <p class="text-muted-2 mb-0">No students currently flagged.</p>
+          {% endfor %}
+        </div>
+        <button type="button" class="panel-link" data-bs-toggle="modal" data-bs-target="#allAttentionModal">
+          View all {% include "components/icon.html" with name="arrow-right" %}
+        </button>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="allSkillsModal" tabindex="-1" aria-labelledby="allSkillsModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-mp-dialog">
+    <div class="modal-content modal-mp-content">
+      <div class="modal-header border-0 pskill-modal-header">
+        <h2 id="allSkillsModalTitle" class="mb-0">Priority skills</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pskill-modal-body">
+        {% for t in weakest_topics %}
+          <div class="pskill-card">
+            <button type="button" class="pskill-head" data-skillset-toggle
+                    aria-expanded="false" aria-controls="prioritySkillTopic{{ forloop.counter }}">
+              <div class="mastery-ring pskill-ring" style="--pct:{{ t.avg }}; --ring-color:{{ t.color }};">
+                <span class="mastery-ring-text"><strong>{{ t.avg }}%</strong></span>
+              </div>
+              <div class="pskill-main">
+                <span class="pskill-title">{{ t.domain.name }}</span>
+                <span class="pskill-sub">{{ t.skills|length }} skill{{ t.skills|length|pluralize }} tracked</span>
+              </div>
+            </button>
+            <div class="pskill-body" id="prioritySkillTopic{{ forloop.counter }}" hidden>
+              {% for w in t.skills %}
+                <div class="pskill-row">
+                  {% include "teacher/_skill_row.html" %}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% empty %}
+          <p class="text-muted-2 mb-0">No data yet — students need to complete some practice first.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="allAttentionModal" tabindex="-1" aria-labelledby="allAttentionModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-mp-dialog">
+    <div class="modal-content modal-mp-content">
+      <div class="modal-header border-0 pskill-modal-header">
+        <h2 id="allAttentionModalTitle" class="mb-0">Students needing attention</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pskill-modal-body">
+        {% for g in attention_groups %}
+          <div class="pskill-card">
+            <button type="button" class="pskill-head" data-skillset-toggle="sideways"
+                    aria-expanded="false" aria-controls="attentionClass{{ forloop.counter }}">
+              <div class="pskill-main">
+                <span class="pskill-title">{{ g.class_name }}</span>
+                <span class="pskill-sub">{{ g.students|length }} student{{ g.students|length|pluralize }} flagged</span>
+              </div>
+            </button>
+            <div class="pskill-body" id="attentionClass{{ forloop.counter }}" hidden>
+              {% for a in g.students %}
+                {% include "teacher/_attention_row.html" with hide_class=1 %}
+              {% endfor %}
+            </div>
+          </div>
+        {% empty %}
+          <p class="text-muted-2 mb-0">No students currently flagged.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

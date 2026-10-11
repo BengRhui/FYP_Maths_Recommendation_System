@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+{% load humanize asset_tags %}
+{% block title %}{{ school_class.name }} — AdeptMath{% endblock %}
+{% block body_class %}is-home is-class-detail{% endblock %}
+{% block content %}
+<div class="container-mp page">
+  <div class="class-head flex-shrink-0">
+    <div>
+      <h1>{{ school_class.name }}</h1>
+      <p class="text-muted-2 mb-0">{{ student_count }} student{{ student_count|pluralize }}</p>
+    </div>
+    <div class="class-stats">
+      <div class="card-mp class-stat">
+        <span class="class-stat-cap">
+          {% include "components/icon.html" with name="progress" cls="mp-icon-sm" %}
+          Active this week
+        </span>
+        <span class="class-stat-val">{{ active_week }} <span class="class-stat-suffix">of {{ student_count }}</span></span>
+      </div>
+      <div class="card-mp class-stat">
+        <span class="class-stat-cap">
+          {% include "components/icon.html" with name="award" cls="mp-icon-sm" %}
+          Mastery average
+        </span>
+        <span class="class-stat-val">{{ avg_mastery }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mp-tabs flex-shrink-0">
+    <a class="mp-tab {% if tab == 'overview' %}active{% endif %}" href="?tab=overview">Overview</a>
+    <a class="mp-tab {% if tab == 'students' %}active{% endif %}" href="?tab=students">Students</a>
+    <a class="mp-tab {% if tab == 'availability' %}active{% endif %}" href="?tab=availability">Topic availability</a>
+  </div>
+
+  {% if tab == 'overview' %}
+    <div id="overviewCards" class="row g-3 flex-shrink-0 class-overview-cards">
+      <div class="col-lg-4">
+        <div class="card-mp d-flex flex-column h-100" style="padding:20px 28px 28px;">
+          <h3 class="mb-4">Mastery distribution</h3>
+          <div class="pie-card-body">
+            <div class="pie-donut">
+              <svg class="pie-donut-svg" viewBox="0 0 100 100" role="img" aria-label="Mastery distribution — hover a ring or legend item for its count">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--surface-container-high)" stroke-width="14"></circle>
+                {% for g in distribution_groups %}
+                  {% if g.count %}
+                    <circle class="pie-arc" cx="50" cy="50" r="40" fill="none" stroke="{{ g.color }}" stroke-width="14"
+                            stroke-dasharray="{{ g.dasharray }}" stroke-dashoffset="{{ g.dashoffset }}"
+                            transform="rotate(-90 50 50)" tabindex="0"
+                            data-tooltip="{{ g.label }}: {{ g.count }} student{{ g.count|pluralize }}"></circle>
+                  {% endif %}
+                {% endfor %}
+              </svg>
+              <div class="pie-donut-hole"><strong>{{ student_count }}</strong><span>student{{ student_count|pluralize }}</span></div>
+            </div>
+            <div class="pie-legend">
+              {% for g in distribution_groups %}
+                <div class="pie-legend-row" tabindex="0" data-tooltip="{{ g.count }} student{{ g.count|pluralize }}">
+                  <span class="pie-swatch" style="background:{{ g.color }};"></span>
+                  <span class="pie-legend-label">{{ g.label }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="card-spacer"></div>
+          <button type="button" class="btn btn-outline-primary w-100" style="margin-top:20px;" data-bs-toggle="modal" data-bs-target="#distributionModal">
+            View more details
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card-mp d-flex flex-column h-100" style="padding:20px 28px 28px;">
+          <h3 class="mb-4">Weekly engagement</h3>
+          <div class="spark-card-body">
+            <svg class="spark-svg" viewBox="0 0 {{ weekly_engagement.width }} {{ weekly_engagement.height }}"
+                 preserveAspectRatio="none" role="img" aria-label="Distinct active students over the last 5 days">
+              <polyline class="spark-line" fill="none" points="{{ weekly_engagement.polyline }}"></polyline>
+              {% for p in weekly_engagement.points %}
+                <circle class="spark-dot{% if forloop.last %} spark-dot-current{% endif %}" cx="{{ p.x }}" cy="{{ p.y }}"
+                        tabindex="0" data-tooltip="{{ p.label }}: {{ p.count }} active"></circle>
+              {% endfor %}
+            </svg>
+            <div class="spark-labels">
+              {% for p in weekly_engagement.points %}<span{% if forloop.last %} class="is-today"{% endif %}>{{ p.label }}</span>{% endfor %}
+            </div>
+          </div>
+          <button type="button" class="btn btn-outline-primary w-100" style="margin-top:20px;" data-bs-toggle="modal" data-bs-target="#weeklyEngagementModal">
+            View more details
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card-mp d-flex flex-column h-100" style="padding:20px 28px 28px;">
+          <h3 class="mb-3">Weakest skills</h3>
+          <div class="bars">
+            {% for w in weakest_skills %}
+              <div>
+                <div class="d-flex justify-content-between small mb-2"><span>{{ w.skill.title }}</span><span class="bar-val">{{ w.avg }}%</span></div>
+                <div class="tbar tier-{{ w.tier }}"><span style="width:{{ w.avg }}%"></span></div>
+              </div>
+            {% empty %}<p class="text-muted-2 mb-0">No practice data yet.</p>{% endfor %}
+          </div>
+          {% if weakest_skills %}
+            <div class="card-spacer"></div>
+            <button type="button" class="btn btn-outline-primary w-100" style="margin-top:20px;" data-bs-toggle="modal" data-bs-target="#classSkillsModal">
+              View all {% include "components/icon.html" with name="arrow-right" %}
+            </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="class-activity-scroll class-activity-overview">
+      <div class="card-mp card-flush">
+        <div id="recentActivity" class="activity-card-head d-flex align-items-center justify-content-between">
+          <h3 class="mb-0">Recent activity</h3>
+          <button type="button" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center justify-content-center p-1"
+                  style="width:32px;height:32px;" data-activity-expand
+                  aria-expanded="false" aria-controls="overviewCards"
+                  title="Expand" aria-label="Expand recent activity">
+            <span class="activity-expand-icon">{% include "components/icon.html" with name="expand" cls="mp-icon-sm" %}</span>
+            <span class="activity-collapse-icon">{% include "components/icon.html" with name="collapse" cls="mp-icon-sm" %}</span>
+          </button>
+        </div>
+        <div class="activity-table-scroll">
+        <table class="table-mp table-responsive-cards" data-column-filters>
+          <thead>
+            <tr>
+              <th>Student{% include "teacher/_column_filter.html" with col=0 label="student" %}</th>
+              <th>Skill{% include "teacher/_column_filter.html" with col=1 label="skill" %}</th>
+              <th>Result{% include "teacher/_column_filter.html" with col=2 label="result" %}</th>
+              <th>When{% include "teacher/_column_filter.html" with col=3 label="when" mode="date" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in recent_attempts %}
+              <tr>
+                <td data-label="Student">{{ a.student.full_name }}</td>
+                <td data-label="Skill">{{ a.micro_skill.title }}{% if a.is_diagnostic %} <span class="chip chip-diagnostic" title="From the onboarding diagnostic, which probes above the student's level">Diagnostic</span>{% endif %}</td>
+                <td data-label="Result">{% if a.is_correct %}<span class="result-correct">Correct</span>{% else %}<span class="result-incorrect">Incorrect</span>{% endif %}</td>
+                <td data-label="When" data-when="{{ a.created_at|date:"c" }}">{{ a.created_at|naturaltime|capfirst }}</td>
+              </tr>
+            {% empty %}<tr><td colspan="4" class="text-muted-2">No recent activity.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+  {% elif tab == 'students' %}
+    <div class="class-activity-scroll class-activity-roster">
+      <div class="card-mp card-flush class-add-student mb-3">
+        <form method="post" action="{% url 'classes:add_student' school_class.id %}" novalidate>
+          {% csrf_token %}
+
+          <div class="d-flex flex-wrap align-items-end gap-2">
+            <div class="flex-grow-1" style="min-width:240px;">
+              <label for="{{ add_student_form.email.id_for_label }}" class="form-label">{{ add_student_form.email.label }}</label>
+              <div class="auth-input-wrap has-left-icon">
+                <span class="auth-input-icon-mark">{% include "components/icon.html" with name="mail" %}</span>
+                {{ add_student_form.email }}
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Add student</button>
+          </div>
+          {% if add_student_form.email.errors %}<ul class="errorlist">{% for e in add_student_form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </form>
+      </div>
+      <div class="card-mp card-flush">
+        <div class="activity-card-head d-flex align-items-center justify-content-between">
+          <h3 class="mb-0">Class roster</h3>
+          <span class="text-muted-2 small">{{ student_count }} student{{ student_count|pluralize }}</span>
+        </div>
+        <div class="activity-table-scroll">
+        <table class="table-mp table-responsive-cards">
+          <thead><tr><th>Student</th><th>Overall progress</th><th>Weakest skill</th><th>Last active</th><th><span class="visually-hidden">Details</span></th><th><span class="visually-hidden">Remove</span></th></tr></thead>
+          <tbody>
+            {% for o in overviews %}
+              <tr class="is-clickable-row"
+                  data-row-href="{% url 'classes:student_detail' school_class.id o.student.id %}">
+                <td data-label="Student">{{ o.student.full_name }}</td>
+                <td data-label="Progress">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="mastery" style="width:90px;"><span style="width:{{ o.overall }}%"></span></div>
+                    <small>{{ o.overall }}%</small>
+                  </div>
+                </td>
+                <td data-label="Weakest">{% if o.weakest %}{{ o.weakest.title }}{% else %}—{% endif %}</td>
+                <td data-label="Last active">{% if o.last_active %}{{ o.last_active|naturaltime|capfirst }}{% else %}—{% endif %}</td>
+                <td data-label=""><a href="{% url 'classes:student_detail' school_class.id o.student.id %}" class="btn btn-outline-primary btn-sm">View details</a></td>
+                <td data-label="">
+                  <form method="post" action="{% url 'classes:remove_student' school_class.id o.student.id %}"
+                        data-confirm="Remove {{ o.student.full_name }} from {{ school_class.name }}?">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-ghost btn-sm roster-remove" title="Remove from class">{% include "components/icon.html" with name="trash" cls="mp-icon-sm" %}<span class="roster-remove-label">Remove<span class="visually-hidden"> {{ o.student.full_name }} from {{ school_class.name }}</span></span></button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}<tr><td colspan="6" class="text-muted-2">No students in this class yet — add one by email above.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+  {% else %}
+    <div class="roadmap-shell">
+      <div class="roadmap-bar">
+
+        <div class="roadmap-status">
+          <p class="roadmap-note">
+            {% if roadmap_preview %}
+              Topics shown to the class. Students unlock each one as they master
+              the topics it builds on.
+            {% else %}
+              Configure the topics shown to students here. Excluded topics stay hidden
+              unless a student turns restrictions off.
+            {% endif %}
+          </p>
+          <p class="roadmap-tally" data-roadmap-tally aria-live="polite">
+            <span class="roadmap-tally-count">
+              <strong data-roadmap-included>{{ roadmap_included }}</strong> of {{ roadmap_total }} chapters included
+            </span>
+            <span class="roadmap-tally-warn" data-roadmap-warn{% if not roadmap_unreachable %} hidden{% endif %}>
+              {% include "components/icon.html" with name="alert" cls="mp-icon-sm" %}
+              <span><strong data-roadmap-unreachable>{{ roadmap_unreachable }}</strong> unreachable — a prerequisite is excluded</span>
+            </span>
+          </p>
+        </div>
+        <div class="roadmap-controls">
+          <div class="path-modes" role="group" aria-label="Roadmap mode">
+            <a class="path-mode {% if not roadmap_preview %}active{% endif %}"
+               href="?tab=availability">Configure</a>
+            <a class="path-mode {% if roadmap_preview %}active{% endif %}"
+               href="?tab=availability&amp;view=preview">Preview</a>
+          </div>
+        </div>
+      </div>
+
+
+      {% if roadmap.nodes %}
+        <div class="path-body roadmap-body">
+          <div class="path-rail" style="height:{{ roadmap.height }}px">
+            {% for band in roadmap.bands %}
+              <div class="path-form-section" style="height:{{ band.height }}px">
+                <span class="path-form-mark" style="padding-top:{{ band.offset }}px">
+                  <span class="path-form-dot" aria-hidden="true"></span>
+                  <span class="path-form-label">{{ band.label }}</span>
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="path-scroll roadmap-scroll" style="height:{{ roadmap.height }}px">
+            <div class="path-canvas roadmap-canvas{% if roadmap_preview %} is-preview{% endif %}"
+                 style="width:{{ roadmap.width }}px; height:{{ roadmap.height }}px"
+                 data-roadmap-prereqs="{{ roadmap_prereqs }}"
+                 data-toggle-url="{% url 'classes:toggle_topic' school_class.id %}"
+                 data-csrf="{{ csrf_token }}">
+              <svg class="path-edges" viewBox="0 0 {{ roadmap.width }} {{ roadmap.height }}"
+                   width="{{ roadmap.width }}" height="{{ roadmap.height }}" aria-hidden="true">
+                {% for edge in roadmap.edges %}
+                  <g class="path-link{% if edge.severed %} is-severed{% endif %}{% if edge.live %} is-live{% endif %}"
+                     data-source="{{ edge.source }}" data-target="{{ edge.target }}">
+                    <title>{{ edge.label }}</title>
+                    <path class="path-link-hit" d="{{ edge.d }}"></path>
+                    <path class="path-edge" d="{{ edge.d }}"></path>
+                  </g>
+                {% endfor %}
+              </svg>
+              {% for node in roadmap.nodes %}
+                {% include "components/roadmap_node.html" with row=node preview=roadmap_preview %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+      {% else %}
+        <div class="roadmap-empty">
+          {% if roadmap_preview %}
+            <h3>No chapters in this roadmap</h3>
+            <p>Every chapter is switched off, so students in this class have nothing to work through.
+              Switch some back on in Configure.</p>
+            <a class="btn btn-primary" href="?tab=availability">Back to Configure</a>
+          {% else %}
+            <h3>No chapters yet</h3>
+            <p>The curriculum has no active chapters to build a roadmap from. Seed the curriculum
+              first, and every chapter will appear here.</p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+<div class="modal fade" id="classSkillsModal" tabindex="-1" aria-labelledby="classSkillsModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-mp-dialog">
+    <div class="modal-content modal-mp-content">
+      <div class="modal-header border-0 pskill-modal-header">
+        <h2 id="classSkillsModalTitle" class="mb-0">Weakest skills</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pskill-modal-body">
+        {% for t in weakest_topics %}
+          <div class="pskill-card">
+            <button type="button" class="pskill-head" data-skillset-toggle
+                    aria-expanded="false" aria-controls="classSkillTopic{{ forloop.counter }}">
+              <div class="mastery-ring pskill-ring" style="--pct:{{ t.avg }}; --ring-color:{{ t.color }};">
+                <span class="mastery-ring-text"><strong>{{ t.avg }}%</strong></span>
+              </div>
+              <div class="pskill-main">
+                <span class="pskill-title">{{ t.domain.name }}</span>
+                <span class="pskill-sub">{{ t.skills|length }} skill{{ t.skills|length|pluralize }} tracked</span>
+              </div>
+            </button>
+            <div class="pskill-body" id="classSkillTopic{{ forloop.counter }}" hidden>
+              {% for w in t.skills %}
+                <div class="pskill-row">
+                  {% include "teacher/_skill_row.html" %}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% empty %}
+          <p class="text-muted-2 mb-0">No data yet — students need to complete some practice first.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="distributionModal" tabindex="-1" aria-labelledby="distributionModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-mp-dialog">
+    <div class="modal-content modal-mp-content">
+      <div class="modal-header border-0 pskill-modal-header">
+        <h2 id="distributionModalTitle" class="mb-0">Mastery distribution</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pskill-modal-body">
+        {% for g in distribution_groups %}
+          <div class="pskill-card">
+            <button type="button" class="pskill-head mastery-group-head" data-skillset-toggle="sideways"
+                    aria-expanded="false" aria-controls="masteryBand{{ forloop.counter }}">
+              <span class="pie-swatch-lg" style="background:{{ g.color }};"></span>
+              <div class="pskill-main">
+                <span class="pskill-title">{{ g.label }}</span>
+                <span class="pskill-sub">{{ g.count }} student{{ g.count|pluralize }}</span>
+              </div>
+            </button>
+            <div class="pskill-body" id="masteryBand{{ forloop.counter }}" hidden>
+              {% for o in g.students %}
+                <div class="tattn-row">
+                  <span class="tattn-name">{{ o.student.full_name }}</span>
+                  <span class="chip" style="background:{{ g.color }}22; color:{{ g.color }};">{{ o.overall }}%</span>
+                </div>
+              {% empty %}
+                <p class="text-muted-2 mb-0">No students in this band yet.</p>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="weeklyEngagementModal" tabindex="-1" aria-labelledby="weeklyEngagementModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-mp-dialog">
+    <div class="modal-content modal-mp-content">
+      <div class="modal-header border-0 pskill-modal-header">
+        <h2 id="weeklyEngagementModalTitle" class="mb-0">Weekly engagement</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pskill-modal-body wkeng-body">
+        <p class="wkeng-caption">{{ weekly_engagement_range }}</p>
+        <div class="wkeng-week">
+          {% for d in weekly_engagement_week %}
+            {% if d.count %}
+              <div class="wkeng-day{% if d.is_today %} is-today{% endif %}">
+                <button type="button" class="wkeng-head" data-skillset-toggle
+                        aria-expanded="false" aria-controls="wkengDay{{ forloop.counter }}">
+                  <span class="wkeng-name">{{ d.label }}<span class="wkeng-date">{{ d.date|date:"j M" }}</span>{% if d.is_today %}<span class="day-today-flag">Today</span>{% endif %}</span>
+                  <span class="wkeng-track"><span style="width:{{ d.share }}%"></span></span>
+                  <span class="wkeng-count">{{ d.count }}</span>
+                  {% include "components/icon.html" with name="chevron-down" cls="mp-icon-sm wkeng-chev" %}
+                </button>
+                <div class="wkeng-roster" id="wkengDay{{ forloop.counter }}" hidden>
+                  {% for s in d.students %}<span class="wkeng-student">{{ s.full_name }}</span>{% endfor %}
+                </div>
+              </div>
+            {% else %}
+              <div class="wkeng-day is-quiet{% if d.is_future %} is-future{% endif %}{% if d.is_today %} is-today{% endif %}">
+                <div class="wkeng-head">
+                  <span class="wkeng-name">{{ d.label }}<span class="wkeng-date">{{ d.date|date:"j M" }}</span>{% if d.is_today %}<span class="day-today-flag">Today</span>{% endif %}</span>
+                  <span class="wkeng-track"></span>
+                  <span class="wkeng-count">{% if d.is_future %}—{% else %}0{% endif %}</span>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static_v 'js/class_roadmap.js' %}"></script>
+{% endblock %}

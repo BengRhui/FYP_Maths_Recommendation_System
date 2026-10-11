@@ -1,0 +1,69 @@
+{% load static asset_tags %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}AdeptMath{% endblock %}</title>
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700;6..72,800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{% static_v 'css/app.css' %}" rel="stylesheet">
+</head>
+<body class="{% if user.is_authenticated %}has-sidebar{% endif %} {% block body_class %}{% endblock %}">
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  {% block nav %}
+    {% if user.is_authenticated %}
+      {% if is_teacher %}{% include "components/nav_teacher.html" %}
+      {% else %}{% include "components/nav_student.html" %}{% endif %}
+    {% else %}
+      {% include "components/nav_public.html" %}
+    {% endif %}
+  {% endblock %}
+
+  <div class="mp-app-body">
+    {% if messages %}
+      <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true">
+        {% for message in messages %}
+          <div class="toast-mp {{ message.tags }}" role="status">
+            <span class="toast-mp-text">{{ message }}</span>
+            <button type="button" class="btn-close" aria-label="Dismiss"
+                    onclick="this.parentElement.remove()"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <main id="main">
+      {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}{% endblock %}
+  </div>
+
+   <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalTitle" aria-hidden="true">
+     <div class="modal-dialog modal-dialog-centered modal-mp-dialog modal-mp-dialog-sm">
+       <div class="modal-content modal-mp-content">
+         <div class="modal-header border-0">
+           <h2 id="confirmModalTitle" class="mb-0">Confirmation</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted-2" data-confirm-message></p>
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" data-confirm-accept>Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static_v 'js/app.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

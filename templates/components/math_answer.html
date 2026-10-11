@@ -1,0 +1,20 @@
+
+
+
+<div class="math-input-wrap" data-math-input-wrap>
+  <label for="answer" class="form-label math-input-label">{{ label }}</label>
+  <div class="math-input-main">
+    <div class="math-input-field">
+      <input type="text" id="answer" name="answer" data-text-answer data-math-input
+             class="form-control form-control-lg answer-input"
+             placeholder="{{ placeholder }}" autocomplete="off">
+      <button type="button" class="math-palette-toggle" data-math-palette-toggle
+              aria-expanded="false" aria-controls="mathPalette" title="Symbol keyboard">
+        {% include "components/icon.html" with name="keyboard" cls="mp-icon-sm" %}
+        <span class="visually-hidden">Symbol keyboard</span>
+      </button>
+    </div>
+    <div class="math-preview" data-math-preview data-empty="true" aria-live="polite"></div>
+  </div>
+  {% include "components/math_palette.html" %}
+</div>

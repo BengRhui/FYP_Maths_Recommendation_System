@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Access not allowed — AdeptMath{% endblock %}
+{% block content %}
+<div class="container-mp page">
+  <div class="card-mp empty-state" style="max-width:560px; margin:40px auto;">
+    <h1 class="h3">You don't have access to this page</h1>
+    <p>This may be teacher-only content, or data for a student who is not in your class.</p>
+    <a href="{% url 'landing' %}" class="btn btn-primary">Return home</a>
+  </div>
+</div>
+{% endblock %}

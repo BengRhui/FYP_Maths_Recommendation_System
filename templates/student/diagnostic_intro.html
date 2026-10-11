@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Find your starting point — AdeptMath{% endblock %}
+{% block body_class %}is-assess{% endblock %}
+{% block nav %}
+<div class="assess-bar">
+  <div class="container-mp d-flex align-items-center justify-content-between" style="height:56px;">
+    <span class="navbar-brand d-flex align-items-center mb-0">
+      <span class="mp-logo">{% include "components/icon.html" with name="path" %}</span> AdeptMath
+    </span>
+    <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-ghost btn-sm">Sign out</button>
+    </form>
+  </div>
+  {% if answered %}<div class="assess-progress"><span style="width:{% widthratio answered total 100 %}%"></span></div>{% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-mp page">
+  <div class="reading">
+    <div class="question-surface">
+      <span class="eyebrow">{% include "components/icon.html" with name="star" cls="mp-icon-sm" %}
+        {% if answered %}Pick up where you left off{% else %}Before you begin{% endif %}</span>
+
+      <h1 class="diag-title">
+        {% if answered %}Let's finish finding your starting point.{% else %}Let's find your starting point.{% endif %}
+      </h1>
+
+      <p class="text-muted-2 diag-lede">
+        {% if answered %}
+          You’ve answered {{ answered }} of {{ total }} questions. Continue from where you
+          left off. Fret not, your previous answers are saved.
+        {% else %}
+          {{ total }} short questions covering all chapters of the syllabus. This is not graded
+          and has no impact on your progress. Your answers help AdeptMath understand what you
+          already know, so your personalised learning path starts at the right level.
+        {% endif %}
+      </p>
+
+      <ul class="diag-meta">
+        <li>{% include "components/icon.html" with name="document" cls="mp-icon-sm" %} {{ total }} questions</li>
+        <li>{% include "components/icon.html" with name="calendar" cls="mp-icon-sm" %} About 5 minutes</li>
+        <li>{% include "components/icon.html" with name="check-circle" cls="mp-icon-sm" %} No pass or fail</li>
+      </ul>
+
+      <a href="{% url 'learning:diagnostic_start' %}" class="btn btn-primary btn-lg w-100">
+        {% if answered %}Continue{% else %}Start the {{ total }} questions{% endif %}
+      </a>
+    </div>
+
+    <p class="text-center text-muted-2 mt-3 small">
+      You can stop partway — every answer is saved as you go, and you'll pick up right here.
+    </p>
+  </div>
+</div>
+{% endblock %}

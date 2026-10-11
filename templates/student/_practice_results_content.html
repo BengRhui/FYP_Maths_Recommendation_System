@@ -1,0 +1,63 @@
+{% load static %}
+<div class="review-modal-header">
+  <h2 class="mt-4 mb-1">Review questions</h2>
+  <p class="text-muted-2 mb-0">Every session builds your skills. Let's look at the breakdown.</p>
+</div>
+<div class="review-scroll">
+{% for item in review %}
+  <div class="review-item {% if item.attempt.is_correct %}review-item-correct{% else %}review-item-wrong{% endif %}">
+    <button class="review-head" type="button" data-review-toggle aria-expanded="false" aria-controls="rev-{{ forloop.counter }}">
+      <span class="review-head-text" data-katex-text>Q{{ forloop.counter }}. {{ item.question.preview }}</span>
+      {% if item.attempt.is_correct %}
+        <span class="result-correct">✓ Correct</span>
+      {% else %}
+        <span class="result-incorrect">✗ Incorrect</span>
+      {% endif %}
+      {% include "components/icon.html" with name="chevron-down" cls="mp-icon-sm review-chevron" %}
+    </button>
+    <div class="review-body" id="rev-{{ forloop.counter }}" hidden>
+      <span class="review-label">Problem</span>
+      <p class="math mb-3" data-katex-text>{{ item.question.stem|safe }}</p>
+      {% comment %}
+        A right answer needs one box, not two identical green ones sitting side
+        by side saying the same words. The results page already branches this
+        way; the modal was the outlier.
+      {% endcomment %}
+      {% if item.attempt.is_correct %}
+        <div class="review-answer-grid review-answer-grid-single">
+          <div class="review-answer-box review-answer-box-green">
+            <span class="review-label">Your answer</span>
+            <span class="review-answer-value" data-katex-value>{{ item.attempt.submitted_answer_display|default:"—" }}</span>
+          </div>
+        </div>
+      {% else %}
+        <div class="review-answer-grid">
+          <div class="review-answer-box review-answer-box-red">
+            <span class="review-label">Your answer</span>
+            <span class="review-answer-value" data-katex-value>{{ item.attempt.submitted_answer_display|default:"—" }}</span>
+          </div>
+          <div class="review-answer-box review-answer-box-green">
+            <span class="review-label">Correct solution</span>
+            <span class="review-answer-value" data-katex-value>{{ item.correct_answer }}</span>
+          </div>
+        </div>
+      {% endif %}
+      {% if item.question.worked_solution %}
+        <div class="review-explanation">
+          <button type="button" class="review-label review-steps-toggle" data-steps-toggle
+                  aria-expanded="false" aria-controls="revsteps-{{ forloop.counter }}">
+            <span class="review-steps-toggle-open">Hide step-by-step explanation</span>
+            <span class="review-steps-toggle-closed">Show step-by-step explanation</span>
+            {% include "components/icon.html" with name="chevron-down" cls="mp-icon-sm review-steps-chev" %}
+          </button>
+          <div class="review-steps-body" id="revsteps-{{ forloop.counter }}">
+            <div class="review-steps-inner">
+              <div class="review-steps"><ol class="rq-steps-list">{% for step in item.question.solution_step_list %}<li><span data-katex-text>{{ step }}</span></li>{% endfor %}</ol></div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endfor %}
+</div>

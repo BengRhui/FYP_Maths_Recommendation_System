@@ -1,0 +1,38 @@
+{% load static %}
+{% with url=request.resolver_match.url_name %}
+<aside class="mp-sidebar">
+  <div class="mp-sidebar-top">
+    <a class="mp-brand" href="{% url 'classes:teacher_dashboard' %}">
+      <span class="mp-logo-mark">{% include "components/icon.html" with name="path" cls="mp-icon-sm" %}</span>
+      <span class="mp-brand-text">AdeptMath<small>Teacher</small></span>
+    </a>
+    <button class="mp-sidebar-toggle" type="button" data-bs-toggle="collapse"
+            data-bs-target="#teacherNav" aria-label="Toggle navigation" aria-expanded="false">
+      {% include "components/icon.html" with name="menu" %}
+    </button>
+  </div>
+
+  <div class="collapse d-lg-block mp-sidebar-body" id="teacherNav">
+    <nav class="mp-sidebar-nav">
+      <a class="mp-sidebar-link {% if url == 'teacher_dashboard' %}active{% endif %}" href="{% url 'classes:teacher_dashboard' %}">
+        {% include "components/icon.html" with name="dashboard" %} Dashboard
+      </a>
+      <a class="mp-sidebar-link {% if url == 'teacher_classes' or url == 'class_detail' %}active{% endif %}" href="{% url 'classes:teacher_classes' %}">
+        {% include "components/icon.html" with name="classes" %} My Classes
+      </a>
+      <a class="mp-sidebar-link {% if url == 'profile' %}active{% endif %}" href="{% url 'accounts:profile' %}">
+        {% include "components/icon.html" with name="profile" %} Profile
+      </a>
+    </nav>
+
+    <div class="mp-sidebar-footer">
+      <form method="post" action="{% url 'accounts:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary mp-sidebar-cta w-100">
+          {% include "components/icon.html" with name="logout" %} Logout
+        </button>
+      </form>
+    </div>
+  </div>
+</aside>
+{% endwith %}

@@ -1,0 +1,41 @@
+{% load static %}
+{% with url=request.resolver_match.url_name %}
+<aside class="mp-sidebar">
+  <div class="mp-sidebar-top">
+    <a class="mp-brand" href="{% url 'learning:dashboard' %}">
+      <span class="mp-logo-mark">{% include "components/icon.html" with name="path" cls="mp-icon-sm" %}</span>
+      <span class="mp-brand-text">AdeptMath</span>
+    </a>
+    <button class="mp-sidebar-toggle" type="button" data-bs-toggle="collapse"
+            data-bs-target="#studentNav" aria-label="Toggle navigation" aria-expanded="false">
+      {% include "components/icon.html" with name="menu" %}
+    </button>
+  </div>
+
+  <div class="collapse d-lg-block mp-sidebar-body" id="studentNav">
+    <nav class="mp-sidebar-nav">
+      <a class="mp-sidebar-link {% if url == 'dashboard' %}active{% endif %}" href="{% url 'learning:dashboard' %}">
+        {% include "components/icon.html" with name="dashboard" %} Main Page
+      </a>
+      <a class="mp-sidebar-link {% if url == 'activity' %}active{% endif %}" href="{% url 'learning:activity' %}">
+        {% include "components/icon.html" with name="progress" %} Activity
+      </a>
+      <a class="mp-sidebar-link {% if url == 'learning_path' or url == 'skill_detail' %}active{% endif %}" href="{% url 'learning:learning_path' %}">
+        {% include "components/icon.html" with name="path" %} Learning Path
+      </a>
+      <a class="mp-sidebar-link {% if url == 'profile' %}active{% endif %}" href="{% url 'accounts:profile' %}">
+        {% include "components/icon.html" with name="profile" %} Profile
+      </a>
+    </nav>
+
+    <div class="mp-sidebar-footer">
+      <form method="post" action="{% url 'accounts:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary mp-sidebar-cta w-100">
+          {% include "components/icon.html" with name="logout" %} Logout
+        </button>
+      </form>
+    </div>
+  </div>
+</aside>
+{% endwith %}

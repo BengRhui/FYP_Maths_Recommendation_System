@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load humanize static asset_tags %}
+{% block title %}{{ student.full_name }} — AdeptMath{% endblock %}
+{% block body_class %}is-home is-student-detail{% endblock %}
+{% block content %}
+<div class="container-mp page">
+
+  <header class="sd-head">
+    <a href="{% url 'classes:class_detail' school_class.id %}?tab=students" class="sd-back">
+      {% include "components/icon.html" with name="arrow-left" cls="mp-icon-sm" %}
+      {{ school_class.name }}
+    </a>
+
+    <div class="sd-head-body">
+      <div class="sd-identity">
+        <h1>{{ student.full_name }}</h1>
+        <p class="sd-meta">
+          {% if last_active %}Last active {{ last_active|naturaltime }}{% else %}No activity yet{% endif %}
+          <span class="sd-meta-sep">·</span>
+          {{ masteries|length }} skill{{ masteries|length|pluralize }} practised
+        </p>
+      </div>
+
+      <div class="sd-standing">
+        <div class="sd-overall">
+          <span class="sd-overall-num">{{ overall }}<span class="sd-overall-unit">%</span></span>
+          <span class="sd-overall-label">Overall mastery</span>
+        </div>
+        {% if masteries %}
+          <div class="sd-split">
+            <div class="sd-split-bar" role="img"
+                 aria-label="{% for b in skill_bands %}{{ b.count }} {{ b.label|lower }}{% if not forloop.last %}, {% endif %}{% endfor %}">
+              {% for b in skill_bands %}
+                {% if b.count %}<span class="sd-split-seg tier-{{ b.key }}" style="width:{{ b.share }}%"></span>{% endif %}
+              {% endfor %}
+            </div>
+            <ul class="sd-split-key">
+              {% for b in skill_bands %}
+                <li class="tier-{{ b.key }}">
+                  <span class="sd-split-dot"></span>
+                  <strong>{{ b.count }}</strong> {{ b.label|lower }}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </header>
+
+
+  <div class="sd-grid">
+
+    <section class="card-mp card-flush sd-panel">
+      <div class="sd-panel-head">
+        <h2 class="sd-panel-title">Mastery by skill</h2>
+        <span class="sd-panel-count">{{ masteries|length }} practised</span>
+      </div>
+
+      <div class="sd-panel-scroll sd-mastery-pad">
+        {% if masteries %}
+          {% for b in skill_bands %}
+            {% if b.count %}
+              <div class="sd-band tier-{{ b.key }}">
+                <button type="button" class="sd-band-head" data-band-toggle
+                        aria-expanded="{% if b.open %}true{% else %}false{% endif %}"
+                        aria-controls="band-{{ b.key }}">
+                  <h3 class="sd-band-label">{{ b.label }}</h3>
+                  <span class="sd-band-count">{{ b.count }}</span>
+                  <span class="sd-band-hint">{{ b.hint }}</span>
+                  {% include "components/icon.html" with name="chevron-down" cls="mp-icon-sm" %}
+                </button>
+                <div class="sd-band-body" id="band-{{ b.key }}">
+                  <ul class="sd-skills">
+                    {% for m in b.rows %}
+                      <li class="sd-skill">
+                        <span class="sd-skill-name">{{ m.micro_skill.title }}</span>
+                        <span class="sd-skill-bar"><span style="width:{{ m.mastery_percent }}%"></span></span>
+                        <span class="sd-skill-pct">{{ m.mastery_percent }}%</span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <p class="sd-empty">{{ student.display_name }} has not practised any skills yet. Mastery appears here after their first completed session.</p>
+        {% endif %}
+      </div>
+    </section>
+
+
+    <section class="card-mp card-flush sd-panel sd-history">
+      <div class="sd-panel-head">
+        <h2 class="sd-panel-title">Attempt history</h2>
+        <span class="sd-panel-count">{{ attempts|length }} most recent</span>
+      </div>
+
+      <div class="sd-panel-scroll">
+        <table class="table-mp sd-attempts table-responsive-cards">
+          <thead>
+            <tr>
+              <th class="sd-col-time">Time</th>
+              <th class="sd-col-skill">Skill</th>
+              <th class="sd-col-result">Result</th>
+              <th class="sd-col-toggle"><span class="visually-hidden">Solution</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in attempts %}
+              {% ifchanged a.created_at.date %}
+                <tr class="sd-day-row">
+                  <td colspan="4"><span class="sd-day">{{ a.created_at|date:"l, j F" }}</span></td>
+                </tr>
+              {% endifchanged %}
+              <tr class="sd-attempt {% if a.is_correct %}is-correct{% else %}is-incorrect{% endif %}">
+                <td data-label="Time" class="sd-col-time"><span class="sd-summary">{{ a.created_at|date:"H:i" }}</span></td>
+                <td data-label="Skill" class="sd-col-skill"><span class="sd-summary">{{ a.micro_skill.title }}</span>{% if a.is_diagnostic %} <span class="chip chip-diagnostic sd-summary" title="From the onboarding diagnostic, which probes above the student's level">Diagnostic</span>{% endif %}</td>
+                <td data-label="Result" class="sd-col-result">
+                  {% if a.is_correct %}
+                    <span class="sd-verdict is-correct">{% include "components/icon.html" with name="check-circle" cls="mp-icon-sm" %}Correct</span>
+                  {% else %}
+                    <span class="sd-verdict is-incorrect">{% include "components/icon.html" with name="x-circle" cls="mp-icon-sm" %}Incorrect</span>
+                  {% endif %}
+                </td>
+                <td data-label="" class="sd-col-toggle">
+                  <button type="button" class="btn btn-ghost btn-sm sd-solution-toggle" data-attempt-toggle
+                          aria-expanded="false" aria-controls="att-{{ a.id }}"
+                          aria-label="Solution for {{ a.micro_skill.title }} at {{ a.created_at|date:"H:i" }}"
+                          title="View solution">{% include "components/icon.html" with name="chevron-down" cls="mp-icon-sm" %}</button>
+                </td>
+              </tr>
+              <tr id="att-{{ a.id }}" class="sd-solution-row" hidden>
+                <td colspan="4">
+
+
+                  <div class="sd-solution">
+                    <div class="sd-solution-top">
+                      <div class="sd-question">
+                        <span class="sd-answer-label">Question</span>
+                        <p class="sd-solution-stem math" data-katex-text>{{ a.question.stem|safe }}</p>
+                      </div>
+                      <div class="sd-answers">
+                        {% if a.is_correct %}
+                          <div class="sd-answer">
+                            <span class="sd-answer-label">Answer</span>
+                            <strong class="sd-answer-value is-right" data-katex-value>{{ a.question.correct_answer_display }}</strong>
+                          </div>
+                        {% else %}
+                          <div class="sd-answer">
+                            <span class="sd-answer-label">Submitted</span>
+                            <strong class="sd-answer-value is-wrong" data-katex-value>{{ a.submitted_answer_display|default:"—" }}</strong>
+                          </div>
+                          <div class="sd-answer">
+                            <span class="sd-answer-label">Correct</span>
+                            <strong class="sd-answer-value is-right" data-katex-value>{{ a.question.correct_answer_display }}</strong>
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                    {% if a.question.worked_solution %}
+                      <div class="sd-working">
+                        <button type="button" class="sd-answer-label sd-steps-toggle"
+                                data-steps-toggle aria-expanded="false"
+                                aria-controls="steps-{{ a.id }}"><span class="sd-steps-toggle-open">Hide solution steps</span><span class="sd-steps-toggle-closed">Show solution steps</span></button>
+                        <div class="sd-steps-body" id="steps-{{ a.id }}">
+                          <div class="sd-steps-inner">
+                            <div class="sd-steps">{% for step in a.question.solution_step_list %}<p data-katex-text>{{ step }}</p>{% endfor %}</div>
+                          </div>
+                        </div>
+                      </div>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4"><p class="sd-empty">No attempts recorded yet.</p></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{% static 'vendor/katex/katex.min.css' %}">
+<script src="{% static 'vendor/katex/katex.min.js' %}"></script>
+<script src="{% static_v 'js/math-notation.js' %}"></script>
+<script src="{% static_v 'js/katex-text.js' %}"></script>
+{% endblock %}

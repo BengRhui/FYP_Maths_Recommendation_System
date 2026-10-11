@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static humanize asset_tags %}
+{% block title %}Profile — AdeptMath{% endblock %}
+{% block body_class %}is-home{% endblock %}
+{% block content %}
+<div class="container-mp page">
+  <div class="profile-page">
+    <h1 class="profile-title mb-5">Your profile</h1>
+
+    <div class="profile-section">
+      <div class="profile-section-label">Personal information</div>
+      <div class="profile-section-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% include "components/field.html" with field=form.full_name %}
+          {% include "components/field.html" with field=form.email %}
+          <div class="d-flex flex-wrap align-items-center gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-link-primary ms-2" data-bs-toggle="modal" data-bs-target="#passwordModal">
+              Change Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% if user.is_student %}
+      <div class="profile-section">
+        <div class="profile-section-label">Class enrolled</div>
+        <div class="profile-section-body">
+          {% if memberships %}
+            {% for membership in memberships %}
+              <div class="profile-class-card">
+                <div>
+                  <h3 class="mb-1">{{ membership.school_class.name }}</h3>
+                  <p class="text-muted-2 mb-0">Teacher: {{ membership.school_class.teacher.full_name }}</p>
+                  <p class="text-muted-2 small mb-0">
+                    {% include "components/icon.html" with name="calendar" cls="mp-icon-sm" %}
+                    Joined {{ membership.joined_at|naturaltime }}
+                  </p>
+                </div>
+                <button type="button" class="btn btn-outline-primary flex-shrink-0"
+                        data-bs-toggle="modal" data-bs-target="#classSettingsModal{{ membership.id }}">
+                  Manage
+                </button>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted-2">You haven't been enrolled in a class yet. Ask your teacher to add you by your account email.</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-mp-dialog">
+    <div class="modal-content modal-mp-content">
+      <div class="modal-header align-items-start">
+        <div>
+          <h2 id="passwordModalTitle" class="mb-1">Change password</h2>
+          <p class="text-muted-2 small mb-0">Fill in the information below to change your password.</p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" data-password-modal-body>
+        {% include "account/_password_form.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% for membership in memberships %}
+  <div class="modal fade" id="classSettingsModal{{ membership.id }}" tabindex="-1" aria-labelledby="classSettingsModalTitle{{ membership.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-mp-dialog">
+      <div class="modal-content modal-mp-content">
+        <div class="modal-header align-items-start">
+          <div>
+            <h2 id="classSettingsModalTitle{{ membership.id }}" class="mb-1">Class Settings</h2>
+            <p class="text-muted-2 small mb-0">Manage settings for {{ membership.school_class.name }} here.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="class-setting">
+            <div class="class-setting-text d-flex class-setting-icon-gap">
+              {% include "components/icon.html" with name="filter" cls="mp-icon-sm mt-1" %}
+              <div>
+                <h3 class="h6 mb-1 fw-bold">Topic restrictions</h3>
+                {% if membership.restrictions_disabled %}
+                  <p class="text-muted-2 small mb-0">
+                    You're seeing every topic, including ones your teacher hid.<br>Turn this off to reset to normal.
+                  </p>
+                {% else %}
+                  <p class="text-muted-2 small mb-0">
+                    Some topics may be hidden by your teacher.<br>Turn this on to see everything.
+                  </p>
+                {% endif %}
+              </div>
+            </div>
+            <form method="post" action="{% url 'classes:toggle_restrictions' membership.school_class.id %}">
+              {% csrf_token %}
+              {% if membership.restrictions_disabled %}
+                <button type="submit" class="btn btn-outline-primary btn-sm">Restore</button>
+              {% else %}
+                <button type="submit" class="btn btn-outline-primary btn-sm">Show all</button>
+              {% endif %}
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static_v 'js/auth.js' %}"></script>
+{% endblock %}
