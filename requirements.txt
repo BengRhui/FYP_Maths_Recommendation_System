@@ -2,9 +2,6 @@
 Django==5.0.6
 python-decouple==3.8
 
-# Machine learning pipeline libraries
-catboost==1.2.5
-
 # ML and additional libraries (not required to run the system)
 numpy==1.26.4
 pandas==2.2.2
@@ -12,5 +9,15 @@ scikit-learn==1.4.2
 joblib==1.4.2
 pyarrow==16.1.0
 matplotlib==3.11.1
-pybkt==1.4.3
+# pybkt==1.4.3
 # manim==0.18.0
+
+# Note: The pyBKT library shall be installed manually
+#       -> Go to their official GitHub repo: https://github.com/CAHLR/pyBKT/
+#       -> Navigate to setup.py
+#       -> Remove the statements under the except block (remove the pure legacy Python version)
+#       -> Perform installation following their instructions
+#       This helps to ensure that the C++ version is installed for this project
+
+# Machine learning pipeline libraries
+catboost==1.2.5

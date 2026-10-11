@@ -20,6 +20,10 @@ Feel free to explore the system!
 Run these commands in your terminal to run the system in action:
 
 ```bash
+# Step 0: Python version
+# Make sure that you're running Python 3.12 to avoid any dependency issues. You can check your Python version by running:
+python --version
+
 # Step 1: Activate the virtual environment
 python -m venv .venv
 
