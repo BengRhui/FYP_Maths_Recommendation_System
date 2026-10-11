@@ -8,7 +8,7 @@ This system is a mathematics question recommendation system built for Malaysian 
 How it works is that:
 1. A machine learning model is first trained to predict the probability of a student answering a question correctly.
 2. The predicted probabilites are inputted into the revised PEAR ranking formula:
-    > $$[1 - 2|0.5 - P(\text{correct)}|] \times \text{cos_sim}(\text{Student mastery vector}, \text{Question skill vector})$$
+    > $$[1 - 2|0.5 - P(\text{correct)}|] \times \text{cos-sim}(\text{Student mastery vector}, \text{Question skill vector})$$
 3. Each question is assigned with a score, where the one with the highest score will be recommended to students.
 
 Feel free to explore the system!
