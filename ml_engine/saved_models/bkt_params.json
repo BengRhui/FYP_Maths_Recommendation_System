@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "source": "research/dataset/0_cleaned/bkt_params.parquet",
+    "generated_by": "research/scripts/generate_bkt_params.py",
+    "method": "pooled mean of every non-degenerate skill fit",
+    "total_skills_fitted": 292,
+    "non_degenerate": 264,
+    "degenerate_filter": "guess <= 0.5 and slip <= 0.5",
+    "prior_clamped_to": [
+      0.05,
+      0.5
+    ]
+  },
+  "pooled": {
+    "p_init": 0.4377,
+    "p_transit": 0.115,
+    "p_slip": 0.2273,
+    "p_guess": 0.3588
+  }
+}

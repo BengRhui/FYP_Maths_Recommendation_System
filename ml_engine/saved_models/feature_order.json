@@ -1,0 +1,23 @@
+[
+  "sq_prev_attempt_count",
+  "sq_is_first_attempt",
+  "sq_last_attempt_outcome",
+  "sq_recency_sec",
+  "s_overall_accuracy",
+  "s_time_since_last",
+  "s_total_attempts",
+  "s_correct_streak",
+  "ss_micro_mastery",
+  "ss_micro_avg_attempts",
+  "ss_macro_mastery",
+  "ss_macro_avg_attempts",
+  "ss_micro_recent_sec",
+  "ss_micro_correct_streak",
+  "ss_micro_wrong_streak",
+  "bkt_mastery",
+  "q_global_attempt_count",
+  "q_global_accuracy",
+  "is_selection_based",
+  "is_input_based",
+  "is_cold_start"
+]
