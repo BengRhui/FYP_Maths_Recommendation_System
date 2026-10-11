@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Database backups and asset files
+db.sqlite3.bak*
+staticfiles/
+media/
+
+# Virtual environment
+.venv/
+venv/
+assets/graphics/.manim-venv/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# Dataset and model details
+research/dataset/
+research/pipeline/catboost_info/
+research/scratch/catboost_info/
+catboost_info/
