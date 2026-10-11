@@ -1,0 +1,16 @@
+# Python and Django related libraries
+Django==5.0.6
+python-decouple==3.8
+
+# Machine learning pipeline libraries
+catboost==1.2.5
+
+# ML and additional libraries (not required to run the system)
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2
+joblib==1.4.2
+pyarrow==16.1.0
+matplotlib==3.11.1
+pybkt==1.4.3
+# manim==0.18.0
